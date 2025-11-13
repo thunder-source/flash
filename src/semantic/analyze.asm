@@ -13,6 +13,7 @@ extern symtable_lookup
 extern symtable_enter_scope
 extern symtable_exit_scope
 extern arena_alloc
+extern current_scope
 
 ; Include AST node type definitions
 %define AST_PROGRAM         0
@@ -159,11 +160,33 @@ semantic_analyze_program:
     sub rsp, 32
     push rbx
     push r12
+    push r13
     
     mov rbx, rcx
     
-    ; Get first declaration
-    mov r12, [rbx + 8]  ; Assuming declarations list at offset 8
+    ; First pass: Register all function names in symbol table
+    mov r12, [rbx + 8]  ; declarations list
+    
+.register_funcs:
+    test r12, r12
+    jz .register_done
+    
+    mov rax, [r12]      ; Get node pointer
+    mov rcx, [rax]      ; Get node type
+    cmp rcx, AST_FUNCTION
+    jne .next_register
+    
+    ; Register function
+    mov rcx, rax
+    call register_function
+    
+.next_register:
+    mov r12, [r12 + 8]
+    jmp .register_funcs
+    
+.register_done:
+    ; Second pass: Analyze function bodies
+    mov r12, [rbx + 8]  ; declarations list
     
 .analyze_decl_loop:
     test r12, r12
@@ -189,9 +212,69 @@ semantic_analyze_program:
     jmp .analyze_decl_loop
     
 .done:
+    pop r13
     pop r12
     pop rbx
     add rsp, 32
+    pop rbp
+    ret
+
+; ============================================================================
+; register_function - Register function in global symbol table
+; Parameters:
+;   RCX = pointer to function AST node
+; Returns:
+;   Nothing
+; ============================================================================
+register_function:
+    push rbp
+    mov rbp, rsp
+    sub rsp, 48
+    push rbx
+    push r12
+    
+    mov rbx, rcx        ; Function node
+    
+    ; Create function symbol
+    mov rcx, Symbol_size
+    call arena_alloc
+    test rax, rax
+    jz .error
+    
+    mov r12, rax        ; Symbol pointer
+    
+    ; Fill in symbol info
+    mov rax, [rbx + 16]     ; function name
+    mov [r12 + Symbol.name], rax
+    mov rax, [rbx + 24]     ; function name length
+    mov [r12 + Symbol.name_len], rax
+    mov qword [r12 + Symbol.type], SYM_FUNCTION
+    
+    ; Store return type
+    mov rax, [rbx + 48]     ; return_type node
+    test rax, rax
+    jz .void_return
+    mov rax, [rax + 16]     ; extract type kind
+    jmp .store_return_type
+    
+.void_return:
+    mov rax, TYPE_VOID
+    
+.store_return_type:
+    mov [r12 + Symbol.data_type], rax
+    
+    ; Store function node pointer in value field for later parameter validation
+    mov [r12 + Symbol.value], rbx
+    
+    ; Insert into global symbol table (current_scope at this point is global)
+    mov rcx, [current_scope]
+    mov rdx, r12
+    call symtable_insert
+    
+.error:
+    pop r12
+    pop rbx
+    add rsp, 48
     pop rbp
     ret
 
@@ -205,9 +288,12 @@ semantic_analyze_program:
 semantic_analyze_function:
     push rbp
     mov rbp, rsp
-    sub rsp, 48
+    sub rsp, 64
     push rbx
     push r12
+    push r13
+    push r14
+    push r15
     
     mov rbx, rcx        ; Function node
     mov [current_function], rbx
@@ -215,11 +301,80 @@ semantic_analyze_function:
     ; Enter new scope for function
     call symtable_enter_scope
     
-    ; TODO: Add function parameters to symbol table
-    ; TODO: Analyze function body
+    ; Add function parameters to symbol table
+    ; ASTFunctionNode layout (after 16-byte base):
+    ; +16: name, +24: name_len, +32: params, +40: param_count, +48: return_type, +56: body
+    mov r12, [rbx + 32]     ; params array
+    mov r13, [rbx + 40]     ; param_count
+    
+    test r13, r13
+    jz .no_params
+    
+    xor r14, r14            ; index = 0
+    
+.param_loop:
+    cmp r14, r13
+    jge .params_done
+    
+    ; Get parameter node (ASTParamNode)
+    mov r15, [r12 + r14 * 8]
+    test r15, r15
+    jz .next_param
+    
+    ; Create symbol for parameter
+    push rcx
+    push rdx
+    push r8
+    mov rcx, Symbol_size
+    call arena_alloc
+    pop r8
+    pop rdx
+    pop rcx
+    test rax, rax
+    jz .next_param
+    
+    mov r8, rax             ; Symbol pointer
+    
+    ; Fill in symbol info
+    mov rax, [r15]          ; param name
+    mov [r8 + Symbol.name], rax
+    mov rax, [r15 + 8]      ; param name_len
+    mov [r8 + Symbol.name_len], rax
+    mov qword [r8 + Symbol.type], SYM_PARAMETER
+    
+    ; Get parameter type from type node
+    mov rax, [r15 + 16]     ; type node
+    test rax, rax
+    jz .param_no_type
+    ; Extract type kind from type node (simplified - assumes primitive type)
+    mov rax, [rax + 16]     ; type kind at offset 16 in type node
+    
+.param_no_type:
+    mov [r8 + Symbol.data_type], rax
+    mov qword [r8 + Symbol.is_mutable], 1  ; Parameters are mutable by default
+    
+    ; Insert parameter into symbol table
+    push r12
+    push r13
+    push r14
+    push r15
+    mov rcx, [current_scope]
+    mov rdx, r8              ; symbol (already in r8)
+    call symtable_insert
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    
+.next_param:
+    inc r14
+    jmp .param_loop
+    
+.params_done:
+.no_params:
     
     ; Get function body (block statement)
-    mov r12, [rbx + 32]  ; Assuming body at offset 32
+    mov r12, [rbx + 56]     ; body at offset 56
     test r12, r12
     jz .no_body
     
@@ -232,9 +387,12 @@ semantic_analyze_function:
     
     mov qword [current_function], 0
     
+    pop r15
+    pop r14
+    pop r13
     pop r12
     pop rbx
-    add rsp, 48
+    add rsp, 64
     pop rbp
     ret
 
@@ -469,9 +627,8 @@ semantic_analyze_let:
     mov [r12 + Symbol.is_mutable], rax
     
     ; Insert into symbol table
-    mov rcx, [rbx + 16]     ; name
-    mov rdx, [rbx + 24]     ; length
-    mov r8, r12             ; symbol
+    mov rcx, [current_scope]
+    mov rdx, r12             ; symbol
     call symtable_insert
     jmp .done
     
@@ -518,8 +675,9 @@ semantic_analyze_assign:
     jne .not_simple_assign
     
     ; Lookup identifier to check mutability
-    mov rcx, [r12 + 16]     ; name
-    mov rdx, [r12 + 24]     ; length
+    mov rcx, [current_scope]
+    mov rdx, [r12 + 16]     ; name
+    mov r8, [r12 + 24]      ; length
     call symtable_lookup
     test rax, rax
     jz .undefined
@@ -680,21 +838,23 @@ semantic_analyze_while:
 semantic_analyze_for:
     push rbp
     mov rbp, rsp
-    sub rsp, 32
+    sub rsp, 64
     push rbx
     push r12
+    push r13
+    push r14
     
     mov rbx, rcx
     
     ; Enter scope for loop variable
     call symtable_enter_scope
     
-    ; For loop structure:
-    ; offset 16: iterator variable name
-    ; offset 24: iterator name length
-    ; offset 32: start expression
-    ; offset 40: end expression
-    ; offset 48: body statement
+    ; ASTForStmtNode structure (after 16-byte base):
+    ; +16: iterator name pointer
+    ; +24: iterator name length
+    ; +32: start expression
+    ; +40: end expression
+    ; +48: body statement
     
     ; Analyze start expression (at offset 32)
     mov rcx, [rbx + 32]
@@ -709,15 +869,36 @@ semantic_analyze_for:
     test rcx, rcx
     jz .no_end
     call semantic_analyze_expression
+    mov r13, rax            ; Save end type
     
     ; Check if start and end types match
-    cmp rax, r12
+    cmp r13, r12
     jne .type_mismatch
     
 .no_end:
-    ; Create symbol for loop variable (implicit let)
-    ; TODO: Create and insert loop variable symbol
+    ; Create symbol for loop iterator variable (implicit let)
+    mov rcx, Symbol_size
+    call arena_alloc
+    test rax, rax
+    jz .no_iterator_symbol
     
+    mov r14, rax            ; Save symbol pointer
+    
+    ; Fill in symbol info
+    mov rax, [rbx + 16]     ; iterator name
+    mov [r14 + Symbol.name], rax
+    mov rax, [rbx + 24]     ; iterator name length
+    mov [r14 + Symbol.name_len], rax
+    mov qword [r14 + Symbol.type], SYM_VARIABLE
+    mov [r14 + Symbol.data_type], r12   ; Use range type (from start expression)
+    mov qword [r14 + Symbol.is_mutable], 0  ; Loop iterator is immutable
+    
+    ; Insert iterator into symbol table
+    mov rcx, [current_scope]
+    mov rdx, r14             ; symbol
+    call symtable_insert
+    
+.no_iterator_symbol:
     ; Set in_loop flag
     mov qword [in_loop], 1
     
@@ -741,9 +922,11 @@ semantic_analyze_for:
     call symtable_exit_scope
     
 .done:
+    pop r14
+    pop r13
     pop r12
     pop rbx
-    add rsp, 32
+    add rsp, 64
     pop rbp
     ret
 
@@ -940,8 +1123,9 @@ semantic_analyze_identifier:
     
     ; Get identifier name and length
     ; Name is at offset 16, length at offset 24 (after ASTNode header)
-    mov rcx, [rbx + 16]     ; name pointer
-    mov rdx, [rbx + 24]     ; name length
+    mov rcx, [current_scope]
+    mov rdx, [rbx + 16]     ; name pointer
+    mov r8, [rbx + 24]      ; name length
     
     ; Lookup in symbol table
     call symtable_lookup
@@ -1070,9 +1254,13 @@ semantic_analyze_call:
     
     mov rbx, rcx
     
-    ; Get function name (at offset 16)
-    mov rcx, [rbx + 16]
-    mov rdx, [rbx + 24]
+    ; Get function name from function expression (usually identifier)
+    mov r15, [rbx + 16]     ; function expression node
+    
+    ; Extract name from identifier node
+    mov rcx, [current_scope]
+    mov rdx, [r15 + 16]     ; name from identifier node
+    mov r8, [r15 + 24]      ; length from identifier node
     
     ; Lookup function in symbol table
     call symtable_lookup

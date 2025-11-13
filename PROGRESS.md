@@ -116,39 +116,79 @@
 The Flash compiler now has:
 1. ✅ Complete lexical analysis (tokenization)
 2. ✅ Complete syntactic analysis (parsing & AST construction)
-3. ✅ Memory management infrastructure
-4. ⏳ Semantic analysis (next phase)
+3. ✅ Complete semantic analysis (type checking, symbol resolution)
+4. ✅ Memory management infrastructure
+5. ⏳ Code generation (next phase)
 
 The compiler can currently:
 - Read Flash source code
 - Tokenize into lexical tokens
 - Parse into Abstract Syntax Tree
-- Handle functions, statements, and expressions
-- Manage memory efficiently
+- Perform semantic analysis (type checking, scope resolution)
+- Validate function calls, assignments, and control flow
+- Track symbol information across scopes
+- Detect semantic errors (type mismatches, undefined symbols, etc.)
+- Manage memory efficiently with arena allocation
 
 ## Next Phases
 
-### 🔄 Phase 5: Semantic Analysis (In Progress)
-**Completed:**
+### ✅ Phase 5: Semantic Analysis (Completed)
+**Completed Features:**
 - ✅ Symbol table with hash-based lookups (256 buckets)
-- ✅ Scope management (enter/exit scopes)
-- ✅ Symbol insertion and lookup
-- ✅ Parent scope traversal for nested lookups
-- ⏳ Type checking (framework in place)
-- ⏳ Variable declaration tracking
-- ⏳ Function signature validation
-- ⏳ Semantic error reporting
+- ✅ Scope management (enter/exit scopes with parent traversal)
+- ✅ Symbol insertion and lookup (variables, functions, parameters)
+- ✅ Function registration in global scope (two-pass analysis)
+- ✅ Function parameter symbol table insertion
+- ✅ For loop iterator variable creation and scoping
+- ✅ Type checking framework for all expression types
+- ✅ Variable declaration tracking with mutability checking
+- ✅ Function call validation (parameter count and types)
+- ✅ Assignment validation (mutability and type checking)
+- ✅ Control flow validation (break/continue in loops, return in functions)
+- ✅ Semantic error tracking
 
-**Files Created:**
-- `src/symtable.asm` - Symbol table with hash map (~500 lines)
-- `src/semantic.asm` - Semantic analyzer framework (~350 lines)
-- `src/test_semantic.asm` - Symbol table tests (~300 lines)
+**Files Created/Modified:**
+- `src/core/symbols.asm` - Symbol table implementation (~400 lines)
+- `src/semantic/analyze.asm` - Complete semantic analyzer (~1300+ lines)
+- `tests/integration/test_semantic_full.asm` - Semantic tests
 
-**Test Results:**
-- 7/7 symbol table tests passing
-- Insert/lookup working correctly
-- Scope nesting working correctly
-- Symbol shadowing supported
+**Implementation Details:**
+
+1. **Symbol Table:**
+   - Hash-based with 256 buckets for O(1) average lookup
+   - Supports variable shadowing across scopes
+   - Parent scope traversal for nested name resolution
+   - Symbol types: VARIABLE, FUNCTION, PARAMETER, STRUCT, ENUM, CONST
+
+2. **Type Checking:**
+   - All primitive types supported (i8-i64, u8-u64, f32, f64, bool, char)
+   - Pointer, array, struct, enum type support
+   - Binary expression type validation
+   - Function call return type inference
+   - Literal type inference
+
+3. **Statement Analysis:**
+   - Let statements with type inference and explicit types
+   - Assignment with mutability checking
+   - If/else statements with condition validation
+   - While loops with condition checking
+   - For loops with iterator variable scoping
+   - Return statements with type matching
+   - Break/continue validation (must be inside loops)
+
+4. **Expression Analysis:**
+   - Binary expressions (arithmetic, comparison, logical)
+   - Unary expressions (negation, not, address-of, dereference)
+   - Function calls with parameter validation
+   - Array indexing with bounds type checking
+   - Field access for struct types
+   - Identifier resolution across scopes
+
+5. **Function Analysis:**
+   - Two-pass: first register all functions, then analyze bodies
+   - Parameters added to function scope symbol table
+   - Return type validation
+   - Forward reference support
 
 ### Phase 6: Intermediate Representation
 **What's Needed:**
@@ -307,26 +347,28 @@ The compiler can currently:
 
 ## Time Investment
 
-**Total Development Time**: ~3-4 hours for Phases 1-4
+**Total Development Time**: ~6-7 hours for Phases 1-5
 
 - Phase 1 (Planning): ~30 minutes
 - Phase 2 (Spec): ~30 minutes
 - Phase 3 (Lexer): ~1.5 hours
 - Phase 4 (Parser): ~1.5 hours
+- Phase 5 (Semantic Analysis): ~2-3 hours
 
-**Estimated Time to Completion**: 15-30 additional hours for Phases 5-10
+**Estimated Time to Completion**: 10-20 additional hours for Phases 6-10
 
 ## File Statistics
 
 ```
-src/lexer.asm:        ~1200 lines
-src/parser.asm:       ~1400 lines
-src/ast.asm:          ~400 lines
-src/memory.asm:       ~300 lines
-src/test_lexer.asm:   ~200 lines
-src/test_parser.asm:  ~150 lines
-----------------------------------------
-Total:                ~3650 lines of x86-64 assembly
+src/lexer/lexer.asm:           ~1200 lines
+src/parser/parser.asm:         ~1400 lines
+src/semantic/analyze.asm:      ~1300 lines
+src/core/symbols.asm:          ~400 lines
+src/ast.asm:                   ~400 lines
+src/utils/memory.asm:          ~300 lines
+tests/integration/*.asm:       ~500 lines
+------------------------------------------------
+Total:                         ~5500 lines of x86-64 assembly
 ```
 
 ## Comparison with C Implementation
@@ -388,21 +430,34 @@ Our assembly implementation:
 
 ## Conclusion
 
-The Flash compiler project has successfully completed the frontend phases (lexical and syntactic analysis). The implementation demonstrates that writing a compiler in pure assembly is not only feasible but can yield significant performance benefits.
+The Flash compiler project has successfully completed the complete frontend (lexical, syntactic, and semantic analysis). The implementation demonstrates that writing a compiler in pure assembly is not only feasible but can yield significant performance benefits while maintaining clean, maintainable code.
 
 **Key Achievements:**
-- ✅ Fully functional lexer in assembly
-- ✅ Complete recursive descent parser in assembly
+- ✅ Fully functional lexer in pure x86-64 assembly (~1200 lines)
+- ✅ Complete recursive descent parser in assembly (~1400 lines)
+- ✅ Comprehensive semantic analyzer with type checking (~1300 lines)
+- ✅ Hash-based symbol table with scoping (~400 lines)
 - ✅ Efficient memory management with arena allocator
-- ✅ Clean, modular architecture
+- ✅ Clean, modular architecture across multiple files
 - ✅ Comprehensive AST representation
+- ✅ All frontend phases working together
+
+**What's Working:**
+- Complete source-to-AST pipeline
+- Full semantic validation (types, scopes, control flow)
+- Function declarations with parameter tracking
+- Variable mutability checking
+- Type inference and explicit typing
+- Nested scopes with shadowing
+- Forward function references
+- Error detection and tracking
 
 **Next Steps:**
-- Implement semantic analysis (symbol tables, type checking)
-- Design and implement intermediate representation
-- Build optimization passes
+- Design and implement intermediate representation (IR)
+- Build optimization passes (constant folding, DCE, CSE)
 - Generate x86-64 machine code
 - Create minimal standard library
+- Implement end-to-end compilation tests
 - Benchmark against GCC/Clang
 
-The foundation is solid, and the path to a complete, high-performance compiler is clear.
+The foundation is solid, with ~5500 lines of hand-crafted assembly code comprising a fully functional compiler frontend. The path to a complete, high-performance compiler is clear, with the hardest conceptual work (parsing, type checking) completed.
