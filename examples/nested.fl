@@ -1,0 +1,22 @@
+// Nested control structures
+fn complex_logic(n: i32) -> i32 {
+    let mut result: i32 = 0;
+    
+    for i in 0..n {
+        if i % 2 == 0 {
+            let mut j: i32 = 0;
+            while j < i {
+                result = result + 1;
+                j = j + 1;
+            }
+        } else {
+            result = result + i;
+        }
+    }
+    
+    return result;
+}
+
+fn main() -> i32 {
+    return complex_logic(10);
+}

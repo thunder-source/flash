@@ -1,0 +1,4 @@
+// Simple Hello World program
+fn main() -> i32 {
+    return 0;
+}

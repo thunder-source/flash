@@ -1,0 +1,33 @@
+// Different type declarations
+fn test_types() -> i32 {
+    let a: i8 = 10;
+    let b: i16 = 100;
+    let c: i32 = 1000;
+    let d: i64 = 10000;
+    
+    let e: u8 = 10;
+    let f: u16 = 100;
+    let g: u32 = 1000;
+    let h: u64 = 10000;
+    
+    let x: f32 = 3.14;
+    let y: f64 = 2.718;
+    
+    let flag: bool = true;
+    let ch: char = 65;
+    
+    return 0;
+}
+
+fn test_pointers() -> i32 {
+    let mut x: i32 = 42;
+    let ptr: *i32 = &x;
+    let ptr2: **i32 = &ptr;
+    
+    return *ptr;
+}
+
+fn main() -> i32 {
+    test_types();
+    return test_pointers();
+}
