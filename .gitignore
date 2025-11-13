@@ -1,12 +1,16 @@
 # Build artifacts
-/build
-/bin
+/build/*.obj
+/bin/*.exe
 
-# Executable files
-*.exe
+.vs
+
+# Object files
 *.obj
 *.o
 
-# Test outputs
-semantic_test.exe
-flash_test.exe
+# Executable files
+*.exe
+
+# Keep .gitkeep files
+!build/.gitkeep
+!bin/.gitkeep
