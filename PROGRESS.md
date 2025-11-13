@@ -129,19 +129,26 @@ The compiler can currently:
 ## Next Phases
 
 ### 🔄 Phase 5: Semantic Analysis (In Progress)
-**What's Needed:**
-- Symbol table implementation
-- Scope management
-- Type checking
-- Variable declaration tracking
-- Function signature validation
-- Semantic error reporting
+**Completed:**
+- ✅ Symbol table with hash-based lookups (256 buckets)
+- ✅ Scope management (enter/exit scopes)
+- ✅ Symbol insertion and lookup
+- ✅ Parent scope traversal for nested lookups
+- ⏳ Type checking (framework in place)
+- ⏳ Variable declaration tracking
+- ⏳ Function signature validation
+- ⏳ Semantic error reporting
 
-**Estimated Components:**
-- `src/symtable.asm` - Symbol table with hash map
-- `src/semantic.asm` - Semantic analyzer
-- `src/scope.asm` - Scope stack management
-- `src/types.asm` - Type system and type checking
+**Files Created:**
+- `src/symtable.asm` - Symbol table with hash map (~500 lines)
+- `src/semantic.asm` - Semantic analyzer framework (~350 lines)
+- `src/test_semantic.asm` - Symbol table tests (~300 lines)
+
+**Test Results:**
+- 7/7 symbol table tests passing
+- Insert/lookup working correctly
+- Scope nesting working correctly
+- Symbol shadowing supported
 
 ### Phase 6: Intermediate Representation
 **What's Needed:**

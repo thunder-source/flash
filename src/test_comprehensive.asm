@@ -76,6 +76,8 @@ section .data
     msg_pass db "Passed: ", 0
     msg_fail db "Failed: ", 0
     msg_done db 13, 10, "Testing complete!", 13, 10, 0
+    msg_error db 13, 10, "ERROR: Test initialization failed!", 13, 10, 0
+    msg_press_key db 13, 10, "Press Ctrl+C to exit...", 13, 10, 0
     
     ; Test table
     test_table:
@@ -146,9 +148,15 @@ main:
     test rax, rax
     jz .done_testing
     
+    ; Save rbx before call (in case it gets clobbered)
+    push rbx
+    
     mov rcx, [rbx]      ; Test name
     mov rdx, [rbx + 8]  ; Test source
     call run_test
+    
+    ; Restore rbx
+    pop rbx
     
     add rbx, 16
     jmp .test_loop
@@ -186,10 +194,21 @@ main:
     lea rcx, [msg_done]
     call print_cstring
     
+    ; Pause before exit
+    lea rcx, [msg_press_key]
+    call print_cstring
+    
     xor rcx, rcx
     call ExitProcess
     
 .error:
+    lea rcx, [msg_error]
+    call print_cstring
+    
+    ; Pause before exit
+    lea rcx, [msg_press_key]
+    call print_cstring
+    
     mov rcx, 1
     call ExitProcess
 
@@ -207,16 +226,23 @@ run_test:
     push r12
     push r13
     
-    mov r12, rcx  ; Save test name
-    mov r13, rdx  ; Save test source
+    ; Save parameters in local variables first
+    mov [rbp - 8], rcx   ; Test name
+    mov [rbp - 16], rdx  ; Test source
     
     ; Print test name
     lea rcx, [msg_testing]
     call print_cstring
-    mov rcx, r12
+    
+    mov rcx, [rbp - 8]  ; Reload test name
     call print_cstring
+    
     lea rcx, [newline]
     call print_cstring
+    
+    ; Now save in non-volatile registers
+    mov r12, [rbp - 8]   ; Test name
+    mov r13, [rbp - 16]  ; Test source
     
     ; Reset arena for new test
     call arena_reset
