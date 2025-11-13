@@ -8,7 +8,7 @@ if not exist build mkdir build
 
 echo.
 echo [1/6] Assembling memory.asm...
-nasm -f win64 src\memory.asm -o build\memory.obj
+nasm -f win64 src\utils\memory.asm -o build\memory.obj
 if errorlevel 1 (
     echo ERROR: Failed to assemble memory.asm
     exit /b 1
@@ -22,21 +22,21 @@ if errorlevel 1 (
 )
 
 echo [3/6] Assembling lexer.asm...
-nasm -f win64 src\lexer.asm -o build\lexer.obj
+nasm -f win64 src\lexer\lexer.asm -o build\lexer.obj
 if errorlevel 1 (
     echo ERROR: Failed to assemble lexer.asm
     exit /b 1
 )
 
 echo [4/6] Assembling parser.asm...
-nasm -f win64 src\parser.asm -o build\parser.obj
+nasm -f win64 src\parser\parser.asm -o build\parser.obj
 if errorlevel 1 (
     echo ERROR: Failed to assemble parser.asm
     exit /b 1
 )
 
 echo [5/6] Assembling test_lexer.asm...
-nasm -f win64 src\test_lexer.asm -o build\test_lexer.obj
+nasm -f win64 tests\lexer\test_lexer.asm -o build\test_lexer.obj
 if errorlevel 1 (
     echo ERROR: Failed to assemble test_lexer.asm
     exit /b 1
