@@ -218,8 +218,8 @@ ir_function_create:
     mov [rax + IRFunction.return_type], r13
     mov qword [rax + IRFunction.instructions], 0
     mov qword [rax + IRFunction.last_inst], 0
-    mov qword [rax + IRFunction.temp_count], 0
-    mov qword [rax + IRFunction.label_count], 0
+    mov qword [rax + IRFunction.temp_count], 1    ; Start at 1 to distinguish from error (0)
+    mov qword [rax + IRFunction.label_count], 1   ; Start at 1 to distinguish from error (0)
     mov qword [rax + IRFunction.next], 0
     
     ; Add to program if one exists
