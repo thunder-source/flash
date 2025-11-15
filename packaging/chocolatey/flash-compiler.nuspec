@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>flash-compiler</id>
+    <version>0.1.0</version>
+    <title>Flash Compiler</title>
+    <authors>thunder-source</authors>
+    <owners>thunder-source</owners>
+    <projectUrl>https://github.com/thunder-source/flash</projectUrl>
+    <licenseUrl>https://github.com/thunder-source/flash/blob/main/LICENSE</licenseUrl>
+    <bugTrackerUrl>https://github.com/thunder-source/flash/issues</bugTrackerUrl>
+    <description>
+      Flash is a high-performance compiler written entirely in x86-64 assembly.
+      It features a complete lexer, parser, semantic analyzer, IR generator, optimizer, and code generator.
+      Compiles Flash source code to executable Windows x64 binaries.
+    </description>
+    <releaseNotes>
+      https://github.com/thunder-source/flash/releases/tag/v0.1.0
+    </releaseNotes>
+    <tags>compiler flash assembly x86-64</tags>
+    <projectSourceUrl>https://github.com/thunder-source/flash</projectSourceUrl>
+    <packageSourceUrl>https://github.com/thunder-source/flash</packageSourceUrl>
+    <docsUrl>https://github.com/thunder-source/flash/blob/main/README.md</docsUrl>
+    <mailingListUrl>https://github.com/thunder-source/flash/discussions</mailingListUrl>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+    <file src="LICENSE" target="" />
+    <file src="README.md" target="" />
+  </files>
+</package>

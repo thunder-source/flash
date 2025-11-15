@@ -1,0 +1,24 @@
+PackageIdentifier: thunder-source.flash
+PackageVersion: 0.1.0
+PackageName: Flash Compiler
+Publisher: thunder-source
+PackageUrl: https://github.com/thunder-source/flash
+License: MIT
+LicenseUrl: https://github.com/thunder-source/flash/blob/main/LICENSE
+ShortDescription: A high-performance compiler written in x86-64 assembly
+Description: |
+  Flash is an experimental compiler written entirely in x86-64 assembly.
+  Features include a complete lexer, parser, semantic analyzer, intermediate representation generator, optimizer, and code generator.
+  Currently targets Windows x64 architecture.
+Installers:
+  - Architecture: x64
+    InstallerType: zip
+    InstallerUrl: https://github.com/thunder-source/flash/releases/download/v0.1.0/flash-0.1.0-windows-x64.zip
+    InstallerSha256: D9CDF027A4CE07A8C024D76800A603D4A70616B3E405001F27A7A083415D3694
+    InstallerLocale: en-US
+    NestedInstallerType: portableexe
+    NestedInstallerFiles:
+      - RelativeFilePath: bin/flash.exe
+ManifestType: singleton
+ManifestVersion: 1.4.0
+
