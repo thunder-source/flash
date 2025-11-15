@@ -1,0 +1,403 @@
+// Prime Sieve Benchmark - Flash Language
+// Sieve of Eratosthenes implementation for CPU-intensive performance testing
+
+fn sieve_of_eratosthenes(limit: i32) -> i32 {
+    // Create boolean array "prime[0..limit]" and initialize all entries as true
+    let mut prime: [i32; 1000000];  // Array to mark primes
+    let mut i = 0;
+
+    // Initialize all as prime (true = 1, false = 0)
+    while i <= limit {
+        prime[i] = 1;
+        i = i + 1;
+    }
+
+    prime[0] = 0;  // 0 is not prime
+    prime[1] = 0;  // 1 is not prime
+
+    let mut p = 2;
+    while p * p <= limit {
+        // If prime[p] is not changed, then it is a prime
+        if prime[p] == 1 {
+            // Update all multiples of p
+            let mut multiple = p * p;
+            while multiple <= limit {
+                prime[multiple] = 0;
+                multiple = multiple + p;
+            }
+        }
+        p = p + 1;
+    }
+
+    // Count primes
+    let mut count = 0;
+    i = 2;
+    while i <= limit {
+        if prime[i] == 1 {
+            count = count + 1;
+        }
+        i = i + 1;
+    }
+
+    return count;
+}
+
+fn optimized_sieve(limit: i32) -> i32 {
+    // Optimized version using only odd numbers
+    if limit < 2 {
+        return 0;
+    }
+
+    if limit == 2 {
+        return 1;
+    }
+
+    // We only need to track odd numbers
+    let array_size = (limit + 1) / 2;
+    let mut is_prime: [i32; 500000];  // For odd numbers only
+    let mut i = 0;
+
+    // Initialize all odd numbers as prime
+    while i < array_size {
+        is_prime[i] = 1;
+        i = i + 1;
+    }
+
+    // Start with 3 (index 1 in our array)
+    let mut p = 3;
+    while p * p <= limit {
+        let p_index = p / 2;  // Index for odd number p
+
+        if is_prime[p_index] == 1 {
+            // Mark multiples of p as composite
+            let mut multiple = p * p;
+            while multiple <= limit {
+                if multiple % 2 == 1 {  // Only mark odd multiples
+                    let mult_index = multiple / 2;
+                    is_prime[mult_index] = 0;
+                }
+                multiple = multiple + p;
+            }
+        }
+        p = p + 2;  // Only check odd numbers
+    }
+
+    // Count primes (1 for 2, plus all odd primes)
+    let mut count = 1;  // Count 2
+    i = 1;  // Start from 3 (index 1)
+    while i < array_size && (i * 2 + 1) <= limit {
+        if is_prime[i] == 1 {
+            count = count + 1;
+        }
+        i = i + 1;
+    }
+
+    return count;
+}
+
+fn segmented_sieve(limit: i32) -> i32 {
+    // Segmented sieve for better cache performance
+    if limit < 2 {
+        return 0;
+    }
+
+    // Find all primes up to sqrt(limit) first
+    let sqrt_limit = 1000;  // Approximate sqrt for reasonable limits
+    let mut base_primes: [i32; 200];  // Store base primes
+    let mut base_count = 0;
+
+    // Simple sieve for base primes
+    let mut is_prime: [i32; 1000];
+    let mut i = 0;
+    while i <= sqrt_limit {
+        is_prime[i] = 1;
+        i = i + 1;
+    }
+    is_prime[0] = 0;
+    is_prime[1] = 0;
+
+    let mut p = 2;
+    while p * p <= sqrt_limit {
+        if is_prime[p] == 1 {
+            let mut multiple = p * p;
+            while multiple <= sqrt_limit {
+                is_prime[multiple] = 0;
+                multiple = multiple + p;
+            }
+        }
+        p = p + 1;
+    }
+
+    // Collect base primes
+    i = 2;
+    while i <= sqrt_limit && base_count < 200 {
+        if is_prime[i] == 1 {
+            base_primes[base_count] = i;
+            base_count = base_count + 1;
+        }
+        i = i + 1;
+    }
+
+    // Now use segmented sieve
+    let segment_size = 10000;
+    let mut total_count = 0;
+    let mut low = 2;
+
+    while low <= limit {
+        let high = if (low + segment_size - 1) < limit { low + segment_size - 1 } else { limit };
+        let mut segment: [i32; 10000];
+
+        // Initialize segment
+        i = 0;
+        while i <= (high - low) {
+            segment[i] = 1;
+            i = i + 1;
+        }
+
+        // Use base primes to mark composites in this segment
+        i = 0;
+        while i < base_count {
+            p = base_primes[i];
+            if p * p > high {
+                break;
+            }
+
+            // Find first multiple of p in [low, high]
+            let mut start = (low / p) * p;
+            if start < low {
+                start = start + p;
+            }
+            if start == p {
+                start = start + p;  // Don't mark the prime itself
+            }
+
+            // Mark multiples in this segment
+            let mut multiple = start;
+            while multiple <= high {
+                segment[multiple - low] = 0;
+                multiple = multiple + p;
+            }
+
+            i = i + 1;
+        }
+
+        // Count primes in this segment
+        i = 0;
+        while i <= (high - low) {
+            if segment[i] == 1 {
+                total_count = total_count + 1;
+            }
+            i = i + 1;
+        }
+
+        low = low + segment_size;
+    }
+
+    return total_count;
+}
+
+fn benchmark_basic_sieve() -> i32 {
+    let limit = 100000;
+    print_str("Basic Sieve: Finding primes up to ");
+    print_int(limit);
+    print_str("...");
+    print_newline();
+
+    let start_time = get_time_ms();
+    let count = sieve_of_eratosthenes(limit);
+    let end_time = get_time_ms();
+
+    print_str("Found ");
+    print_int(count);
+    print_str(" primes in ");
+    print_int(end_time - start_time);
+    print_str("ms");
+    print_newline();
+
+    return count;
+}
+
+fn benchmark_optimized_sieve() -> i32 {
+    let limit = 100000;
+    print_str("Optimized Sieve: Finding primes up to ");
+    print_int(limit);
+    print_str("...");
+    print_newline();
+
+    let start_time = get_time_ms();
+    let count = optimized_sieve(limit);
+    let end_time = get_time_ms();
+
+    print_str("Found ");
+    print_int(count);
+    print_str(" primes in ");
+    print_int(end_time - start_time);
+    print_str("ms");
+    print_newline();
+
+    return count;
+}
+
+fn benchmark_segmented_sieve() -> i32 {
+    let limit = 100000;
+    print_str("Segmented Sieve: Finding primes up to ");
+    print_int(limit);
+    print_str("...");
+    print_newline();
+
+    let start_time = get_time_ms();
+    let count = segmented_sieve(limit);
+    let end_time = get_time_ms();
+
+    print_str("Found ");
+    print_int(count);
+    print_str(" primes in ");
+    print_int(end_time - start_time);
+    print_str("ms");
+    print_newline();
+
+    return count;
+}
+
+fn verify_correctness() -> i32 {
+    // Test with known prime counts for small numbers
+    let test_limits = [10, 100, 1000, 10000];
+    let expected_counts = [4, 25, 168, 1229];  // Known prime counts
+
+    print_str("Verifying correctness...");
+    print_newline();
+
+    let mut i = 0;
+    while i < 4 {
+        let limit = test_limits[i];
+        let expected = expected_counts[i];
+
+        let basic_count = sieve_of_eratosthenes(limit);
+        let opt_count = optimized_sieve(limit);
+
+        if basic_count != expected || opt_count != expected {
+            print_str("ERROR: Mismatch for limit=");
+            print_int(limit);
+            print_str(" expected=");
+            print_int(expected);
+            print_str(" basic=");
+            print_int(basic_count);
+            print_str(" optimized=");
+            print_int(opt_count);
+            print_newline();
+            return 1;
+        }
+
+        print_str("✓ Limit ");
+        print_int(limit);
+        print_str(": ");
+        print_int(expected);
+        print_str(" primes");
+        print_newline();
+
+        i = i + 1;
+    }
+
+    print_str("All implementations produce correct results");
+    print_newline();
+    return 0;
+}
+
+fn stress_test() -> i32 {
+    // Multiple sieve computations to stress CPU and memory
+    print_str("Stress test: Computing multiple sieves...");
+    print_newline();
+
+    let start_time = get_time_ms();
+    let mut total_primes = 0;
+    let mut limit = 1000;
+
+    while limit <= 50000 {
+        let count = optimized_sieve(limit);
+        total_primes = total_primes + count;
+        limit = limit + 1000;
+    }
+
+    let end_time = get_time_ms();
+
+    print_str("Computed sieves for limits 1000-50000 (50 iterations)");
+    print_newline();
+    print_str("Total primes found: ");
+    print_int(total_primes);
+    print_str(" in ");
+    print_int(end_time - start_time);
+    print_str("ms");
+    print_newline();
+
+    return total_primes;
+}
+
+fn main() -> i32 {
+    print_str("=== Flash Prime Sieve Benchmark ===");
+    print_newline();
+    print_newline();
+
+    // Verification phase
+    let verification_result = verify_correctness();
+    if verification_result != 0 {
+        return verification_result;
+    }
+
+    print_newline();
+    print_str("=== Performance Benchmarks ===");
+    print_newline();
+
+    // Individual benchmarks
+    let basic_count = benchmark_basic_sieve();
+    let opt_count = benchmark_optimized_sieve();
+    let seg_count = benchmark_segmented_sieve();
+
+    print_newline();
+    print_str("=== Stress Test ===");
+    print_newline();
+
+    let stress_result = stress_test();
+
+    print_newline();
+    print_str("=== Summary ===");
+    print_newline();
+    print_str("Basic sieve result: ");
+    print_int(basic_count);
+    print_str(" primes");
+    print_newline();
+    print_str("Optimized sieve result: ");
+    print_int(opt_count);
+    print_str(" primes");
+    print_newline();
+    print_str("Segmented sieve result: ");
+    print_int(seg_count);
+    print_str(" primes");
+    print_newline();
+    print_str("Stress test total: ");
+    print_int(stress_result);
+    print_str(" primes");
+    print_newline();
+
+    print_str("Prime sieve benchmark completed successfully");
+    print_newline();
+
+    return 0;
+}
+
+// Utility functions (these would be provided by Flash standard library)
+fn get_time_ms() -> i32 {
+    // Placeholder - would call system time function
+    return 0;
+}
+
+fn print_str(s: str) {
+    // Placeholder - would call system print function
+}
+
+fn print_int(n: i32) {
+    // Placeholder - would call system print function
+}
+
+fn print_newline() {
+    // Placeholder - would call system print function
+}

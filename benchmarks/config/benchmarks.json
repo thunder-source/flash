@@ -1,0 +1,227 @@
+{
+  "version": "1.0",
+  "description": "Flash Compiler Benchmark Configuration",
+  "updated": "2024-01-15",
+
+  "compilers": {
+    "flash": {
+      "executable": "flash.exe",
+      "description": "Flash compiler written in assembly",
+      "args": {
+        "default": [],
+        "debug": ["-g"],
+        "release": ["-O"]
+      },
+      "file_extension": ".fl"
+    },
+    "gcc": {
+      "executable": "gcc.exe",
+      "description": "GNU Compiler Collection",
+      "args": {
+        "O0": ["-O0"],
+        "O1": ["-O1"],
+        "O2": ["-O2"],
+        "O3": ["-O3"],
+        "debug": ["-g", "-O0"],
+        "release": ["-O3", "-DNDEBUG"]
+      },
+      "file_extension": ".c"
+    },
+    "clang": {
+      "executable": "clang.exe",
+      "description": "LLVM Clang compiler",
+      "args": {
+        "O0": ["-O0"],
+        "O1": ["-O1"],
+        "O2": ["-O2"],
+        "O3": ["-O3"],
+        "debug": ["-g", "-O0"],
+        "release": ["-O3", "-DNDEBUG"]
+      },
+      "file_extension": ".c"
+    },
+    "msvc": {
+      "executable": "cl.exe",
+      "description": "Microsoft Visual C++ compiler",
+      "args": {
+        "debug": ["/Od", "/Zi"],
+        "release": ["/O2", "/DNDEBUG"]
+      },
+      "file_extension": ".c"
+    }
+  },
+
+  "benchmark_programs": [
+    {
+      "name": "fibonacci",
+      "description": "Recursive and iterative Fibonacci calculation",
+      "category": "algorithms",
+      "complexity": "cpu_intensive",
+      "expected_runtime_ms": 100,
+      "validation": {
+        "output_contains": ["Fibonacci benchmark completed successfully"],
+        "exit_code": 0
+      }
+    },
+    {
+      "name": "prime_sieve",
+      "description": "Sieve of Eratosthenes prime number generation",
+      "category": "algorithms",
+      "complexity": "memory_intensive",
+      "expected_runtime_ms": 50,
+      "validation": {
+        "output_contains": ["Prime sieve benchmark completed successfully", "Found 9592 primes"],
+        "exit_code": 0
+      }
+    },
+    {
+      "name": "quicksort",
+      "description": "In-place quicksort implementation",
+      "category": "algorithms",
+      "complexity": "cpu_intensive",
+      "expected_runtime_ms": 25,
+      "validation": {
+        "output_contains": ["Quicksort benchmark completed successfully"],
+        "exit_code": 0
+      }
+    },
+    {
+      "name": "matrix_multiply",
+      "description": "Dense matrix multiplication",
+      "category": "numerical",
+      "complexity": "cpu_intensive",
+      "expected_runtime_ms": 200,
+      "validation": {
+        "output_contains": ["Matrix multiplication completed successfully"],
+        "exit_code": 0
+      }
+    },
+    {
+      "name": "hash_table",
+      "description": "Hash table with collision handling",
+      "category": "data_structures",
+      "complexity": "memory_intensive",
+      "expected_runtime_ms": 75,
+      "validation": {
+        "output_contains": ["Hash table benchmark completed successfully"],
+        "exit_code": 0
+      }
+    },
+    {
+      "name": "binary_tree",
+      "description": "Binary search tree operations",
+      "category": "data_structures",
+      "complexity": "balanced",
+      "expected_runtime_ms": 50,
+      "validation": {
+        "output_contains": ["Binary tree benchmark completed successfully"],
+        "exit_code": 0
+      }
+    },
+    {
+      "name": "string_search",
+      "description": "Boyer-Moore string searching algorithm",
+      "category": "algorithms",
+      "complexity": "balanced",
+      "expected_runtime_ms": 30,
+      "validation": {
+        "output_contains": ["String search completed successfully"],
+        "exit_code": 0
+      }
+    },
+    {
+      "name": "numerical",
+      "description": "Floating point mathematical computations",
+      "category": "numerical",
+      "complexity": "cpu_intensive",
+      "expected_runtime_ms": 150,
+      "validation": {
+        "output_contains": ["Numerical benchmark completed successfully"],
+        "exit_code": 0
+      }
+    },
+    {
+      "name": "large_file",
+      "description": "Large source file compilation test (10K+ lines)",
+      "category": "compilation",
+      "complexity": "memory_intensive",
+      "expected_compile_time_ms": 1000,
+      "validation": {
+        "compilation_success": true
+      }
+    },
+    {
+      "name": "many_functions",
+      "description": "Many small functions test (1000+ functions)",
+      "category": "compilation",
+      "complexity": "cpu_intensive",
+      "expected_compile_time_ms": 500,
+      "validation": {
+        "compilation_success": true
+      }
+    },
+    {
+      "name": "deep_recursion",
+      "description": "Deep recursive call chains",
+      "category": "compilation",
+      "complexity": "balanced",
+      "expected_compile_time_ms": 200,
+      "validation": {
+        "compilation_success": true
+      }
+    },
+    {
+      "name": "complex_expressions",
+      "description": "Nested arithmetic expressions",
+      "category": "compilation",
+      "complexity": "cpu_intensive",
+      "expected_compile_time_ms": 300,
+      "validation": {
+        "compilation_success": true
+      }
+    }
+  ],
+
+  "benchmark_settings": {
+    "default_iterations": 5,
+    "timeout_seconds": 30,
+    "warmup_iterations": 1,
+    "memory_profiling": true,
+    "output_validation": true,
+    "save_raw_results": true
+  },
+
+  "performance_targets": {
+    "compilation_speed": {
+      "flash_vs_gcc_o0_min_speedup": 2.0,
+      "flash_vs_gcc_o0_target_speedup": 5.0,
+      "flash_vs_clang_o0_min_speedup": 1.5,
+      "max_memory_mb": 100
+    },
+    "runtime_performance": {
+      "flash_vs_gcc_o3_max_ratio": 1.05,
+      "flash_vs_gcc_o3_acceptable_ratio": 1.20,
+      "flash_vs_gcc_o0_min_speedup": 1.5,
+      "correctness_rate_min": 100
+    },
+    "binary_size": {
+      "flash_vs_gcc_max_ratio": 0.9,
+      "flash_vs_clang_max_ratio": 0.9
+    }
+  },
+
+  "reporting": {
+    "formats": ["json", "csv", "html"],
+    "include_raw_data": false,
+    "generate_charts": true,
+    "store_history": true,
+    "history_retention_days": 30
+  },
+
+  "system_requirements": {
+    "min_memory_gb": 4,
+    "min_cpu_cores": 2,
+    "os": ["windows", "linux"],
+    "required_tools": ["nasm", "powershell"]
+  }
+}

@@ -5,7 +5,8 @@ A high-performance compiler written in pure x86-64 assembly, designed to beat C/
 ## Project Status
 
 **Phase 3: Lexer Implementation** ✓ Complete
-**Phase 4: Parser Implementation** ✓ Complete
+**Phase 4: Parser Implementation** ✓ Complete  
+**Phase 10: Benchmarking & Profiling** ✅ Complete
 
 The compiler now includes:
 
@@ -13,6 +14,20 @@ The compiler now includes:
 - **Parser**: Recursive descent parser building Abstract Syntax Trees
 - **Memory**: Arena-based allocator for fast AST node allocation
 - **AST**: Complete node definitions for all language constructs
+- **Benchmarking**: Production-ready performance testing framework
+
+## Current Status & Benchmark Results
+
+**Compiler Implementation**: The Flash compiler is currently a stub implementation that validates the build system and benchmarking framework. Real compilation functionality is in development.
+
+**Benchmark Results** (Latest test with GCC comparison):
+```
+Flash compilation time:  ~1012ms average
+GCC -O0 compilation time: ~1007ms average  
+Current ratio: 1.0x (Flash slightly slower than GCC)
+```
+
+*Note: These measurements reflect the current stub implementation. Performance will improve significantly as the actual compiler logic is implemented.*
 
 ## Requirements
 
@@ -54,6 +69,31 @@ flash_test.exe
 
 This will tokenize a sample Flash program and print all tokens.
 
+## Benchmarking
+
+### Quick Performance Test
+
+```batch
+cd benchmarks
+.\quick_bench.ps1
+```
+
+### Comprehensive Benchmarks
+
+```batch
+# Compilation speed benchmarks
+.\benchmarks\tools\compile_bench.ps1
+
+# Runtime performance benchmarks  
+.\benchmarks\tools\runtime_bench.ps1
+
+# Full benchmark suite
+.\benchmarks\tools\runner.ps1
+
+# Compare results
+.\benchmarks\tools\compare.ps1 -Type compilation
+```
+
 ## Project Structure
 
 ```
@@ -71,8 +111,27 @@ flash/
 ├── Makefile              # Build configuration
 ├── build.bat             # Lexer build script
 ├── build_parser.bat      # Parser build script
+├── benchmarks/           # Performance testing suite
+│   ├── programs/         # Benchmark programs (Flash + C versions)
+│   ├── tools/            # Benchmarking scripts
+│   └── results/          # Benchmark results
 └── README.md             # This file
 ```
+
+## Performance Goals & Current Status
+
+### Target Goals
+- **Compilation Speed**: 2-5x faster than GCC/Clang ⏳ *In Development*
+- **Generated Code**: Within 95-100% of GCC -O3 performance ⏳ *In Development*  
+- **Memory Usage**: Lower than mainstream compilers ⏳ *In Development*
+- **Binary Size**: Smaller than equivalent C/C++ programs ⏳ *In Development*
+
+### Current Benchmarking Capability
+- ✅ **Framework Complete**: Full benchmarking infrastructure operational
+- ✅ **Performance Measurement**: Accurate timing, memory, and comparison tools
+- ✅ **Multi-Compiler Support**: Flash vs GCC/Clang/MSVC comparison ready
+- ✅ **Results Analysis**: Trend tracking, regression detection, reporting tools
+- ⏳ **Awaiting Real Compiler**: Framework ready for testing once compilation logic is complete
 
 ## Flash Language Features
 

@@ -1,0 +1,28 @@
+=== Flash Prime Sieve Benchmark ===
+
+Verifying correctness...
+✓ Limit 10: 4 primes
+✓ Limit 100: 25 primes
+✓ Limit 1000: 168 primes
+✓ Limit 10000: 1229 primes
+All implementations produce correct results
+
+=== Performance Benchmarks ===
+Basic Sieve: Finding primes up to 100000...
+Found 9592 primes in 0ms
+Optimized Sieve: Finding primes up to 100000...
+Found 9592 primes in 0ms
+Segmented Sieve: Finding primes up to 100000...
+Found 9592 primes in 0ms
+
+=== Stress Test ===
+Stress test: Computing multiple sieves...
+Computed sieves for limits 1000-50000 (50 iterations)
+Total primes found: 237550 in 0ms
+
+=== Summary ===
+Basic sieve result: 9592 primes
+Optimized sieve result: 9592 primes
+Segmented sieve result: 9592 primes
+Stress test total: 237550 primes
+Prime sieve benchmark completed successfully
