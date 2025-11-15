@@ -230,7 +230,7 @@ print_string:
     mov rcx, [stdout_handle]
     mov r8, rdx
     lea r9, [bytes_written]
-    mov qword [rbp - 32], 0
+    mov qword [rsp + 32], 0
     call WriteFile
     
 .exit:
@@ -263,7 +263,7 @@ print_buffer:
     mov rdx, rbx        ; buffer
     mov r8, r12         ; length
     lea r9, [bytes_written]
-    mov qword [rbp - 32], 0
+    mov qword [rsp + 32], 0
     call WriteFile
     
 .exit:

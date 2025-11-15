@@ -471,7 +471,7 @@ codegen_generate_function:
     jnz .error              ; Error in code generation
     
     ; Move to next instruction
-    mov r13, [r13 + 136]    ; IRInstruction.next (offset at end of structure)
+    mov r13, [r13 + 112]    ; IRInstruction.next (opcode=8, dest=32, src1=32, src2=32, line=8 -> offset 112)
     jmp .inst_loop
     
 .inst_done:

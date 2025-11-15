@@ -1,36 +1,36 @@
-; Simplified codegen test - generate actual code
+; Debug version - check each step
 bits 64
 default rel
 
 extern arena_init
 extern codegen_init
-extern codegen_generate_program
-extern codegen_generate_function
 extern codegen_get_output
 extern ir_program_create
 extern ir_function_create
-extern ir_emit_instruction
-extern ir_create_instruction
-extern ir_new_temp
+extern codegen_generate_function
 extern GetStdHandle
 extern WriteFile
 extern ExitProcess
 
 %define STD_OUTPUT_HANDLE -11
 %define TYPE_I32 2
-%define IR_MOVE 40
-%define IR_ADD 0
 
 section .data
     test_func_name db "test_main", 0
-    msg_header db "=== Simple Codegen Test ===", 13, 10, 0
-    msg_output db 13, 10, "Generated Assembly:", 13, 10, 0
-    msg_done db 13, 10, "Test Complete!", 13, 10, 0
+    msg1 db "Step 1: arena_init...", 13, 10, 0
+    msg2 db "Step 2: codegen_init...", 13, 10, 0
+    msg3 db "Step 3: ir_program_create...", 13, 10, 0
+    msg4 db "Step 4: ir_function_create...", 13, 10, 0
+    msg5 db "Step 5: codegen_generate_function...", 13, 10, 0
+    msg6 db "Step 6: codegen_get_output...", 13, 10, 0
+    msg_ok db "  [OK]", 13, 10, 0
+    msg_fail db "  [FAILED]", 13, 10, 0
+    msg_output db 13, 10, "Generated code:", 13, 10, 0
+    msg_done db 13, 10, "Success!", 13, 10, 0
 
 section .bss
     stdout_handle resq 1
     bytes_written resq 1
-    ir_func resq 1
 
 section .text
 global main
@@ -45,73 +45,90 @@ main:
     call GetStdHandle
     mov [stdout_handle], rax
     
-    ; Print header
-    lea rcx, [msg_header]
+    ; Step 1
+    lea rcx, [msg1]
     call print_str
-    
-    ; Initialize
+    xor rcx, rcx  ; Use default size
     call arena_init
     test rax, rax
-    jnz .error
+    jz .fail      ; Returns arena pointer, NULL on error
+    lea rcx, [msg_ok]
+    call print_str
     
+    ; Step 2
+    lea rcx, [msg2]
+    call print_str
     call codegen_init
     test rax, rax
-    jnz .error
+    jnz .fail
+    lea rcx, [msg_ok]
+    call print_str
     
-    ; Create IR program
+    ; Step 3
+    lea rcx, [msg3]
+    call print_str
     call ir_program_create
     test rax, rax
-    jz .error
+    jz .fail
+    mov rbx, rax  ; Save program pointer in rbx instead of stack
+    lea rcx, [msg_ok]
+    call print_str
     
-    ; Save IR program pointer
-    push rax
-    
-    ; Create function
+    ; Step 4
+    lea rcx, [msg4]
+    call print_str
     lea rcx, [test_func_name]
     mov rdx, 9
     mov r8, TYPE_I32
     call ir_function_create
     test rax, rax
-    jz .error
-    mov [ir_func], rax
+    jz .fail
+    mov rbx, rax
+    lea rcx, [msg_ok]
+    call print_str
     
-    ; Generate code for function only (skip program for now)
-    mov rcx, rax
+    ; Step 5
+    lea rcx, [msg5]
+    call print_str
+    mov rcx, rbx
     call codegen_generate_function
     test rax, rax
-    jnz .error
-    pop rax      ; Clean up saved program pointer
+    jnz .fail
+    lea rcx, [msg_ok]
+    call print_str
     
-    ; Get output
+    ; Step 6
+    lea rcx, [msg6]
+    call print_str
     call codegen_get_output
     test rax, rax
-    jz .error
+    jz .fail
+    mov rbx, rax
+    mov r12, rdx
+    lea rcx, [msg_ok]
+    call print_str
     
-    ; Print output label
-    push rax
-    push rdx
+    ; Print output
     lea rcx, [msg_output]
     call print_str
-    pop rdx
-    pop rax
-    
-    ; Print generated code
-    mov rcx, rax
+    mov rcx, rbx
+    mov rdx, r12
     call print_buffer
     
-    ; Print done
+    ; Done
     lea rcx, [msg_done]
     call print_str
     
-    ; Success
     xor rcx, rcx
     call ExitProcess
     
-.error:
+.fail:
+    lea rcx, [msg_fail]
+    call print_str
     mov rcx, 1
     call ExitProcess
 
-; Print null-terminated string
+; Print string
 print_str:
     push rbp
     mov rbp, rsp
@@ -133,7 +150,7 @@ print_str:
     mov r8, rdx
     mov rdx, rbx
     lea r9, [bytes_written]
-    mov qword [rbp - 32], 0
+    mov qword [rsp + 32], 0
     call WriteFile
     
 .exit:
@@ -142,8 +159,7 @@ print_str:
     pop rbp
     ret
 
-; Print buffer with length
-; RCX = buffer, RDX = length
+; Print buffer
 print_buffer:
     push rbp
     mov rbp, rsp
@@ -161,7 +177,7 @@ print_buffer:
     mov rdx, rbx
     mov r8, r12
     lea r9, [bytes_written]
-    mov qword [rbp - 32], 0
+    mov qword [rsp + 32], 0
     call WriteFile
     
 .exit:

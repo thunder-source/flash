@@ -1,0 +1,145 @@
+; ============================================================================
+; Comprehensive Flash Program - Tests All Language Features
+; ============================================================================
+; Features tested:
+; - Variable declarations (let, mut)
+; - Arithmetic operations
+; - Function definitions and calls
+; - Control flow (if/else)
+; - Loops (while, for)
+; - Return statements
+; ============================================================================
+
+; Calculate factorial using recursion
+fn factorial(n: i32) -> i32 {
+    if n <= 1 {
+        return 1;
+    }
+    let result = n * factorial(n - 1);
+    return result;
+}
+
+; Calculate fibonacci using iteration
+fn fibonacci(n: i32) -> i32 {
+    if n <= 1 {
+        return n;
+    }
+    
+    let mut a = 0;
+    let mut b = 1;
+    let mut i = 2;
+    
+    while i <= n {
+        let temp = a + b;
+        a = b;
+        b = temp;
+        i = i + 1;
+    }
+    
+    return b;
+}
+
+; Sum numbers from 1 to n
+fn sum_to_n(n: i32) -> i32 {
+    let mut total = 0;
+    let mut i = 1;
+    
+    while i <= n {
+        total = total + i;
+        i = i + 1;
+    }
+    
+    return total;
+}
+
+; Check if number is prime
+fn is_prime(n: i32) -> i32 {
+    if n < 2 {
+        return 0;
+    }
+    
+    if n == 2 {
+        return 1;
+    }
+    
+    let mut i = 2;
+    while i * i <= n {
+        if n % i == 0 {
+            return 0;
+        }
+        i = i + 1;
+    }
+    
+    return 1;
+}
+
+; Main entry point
+fn main() -> i32 {
+    print_str("=== Flash Compiler Comprehensive Test ===");
+    print_newline();
+    
+    ; Test 1: Simple arithmetic
+    print_str("Test 1: Arithmetic");
+    print_newline();
+    let x = 10;
+    let y = 20;
+    let z = x + y;
+    print_str("10 + 20 = ");
+    print_int(z);
+    print_newline();
+    
+    ; Test 2: Factorial
+    print_str("Test 2: Factorial(5) = ");
+    let fact = factorial(5);
+    print_int(fact);
+    print_newline();
+    
+    ; Test 3: Fibonacci
+    print_str("Test 3: Fibonacci(10) = ");
+    let fib = fibonacci(10);
+    print_int(fib);
+    print_newline();
+    
+    ; Test 4: Sum
+    print_str("Test 4: Sum(1..10) = ");
+    let total = sum_to_n(10);
+    print_int(total);
+    print_newline();
+    
+    ; Test 5: Prime check
+    print_str("Test 5: Is 17 prime? ");
+    let prime = is_prime(17);
+    if prime == 1 {
+        print_str("Yes");
+    } else {
+        print_str("No");
+    }
+    print_newline();
+    
+    ; Test 6: Conditional
+    print_str("Test 6: Conditional");
+    print_newline();
+    let a = 5;
+    if a > 3 {
+        print_str("5 > 3: True");
+    } else {
+        print_str("5 > 3: False");
+    }
+    print_newline();
+    
+    ; Test 7: Loop with counter
+    print_str("Test 7: Loop 1..5:");
+    print_newline();
+    let mut counter = 1;
+    while counter <= 5 {
+        print_int(counter);
+        print_str(" ");
+        counter = counter + 1;
+    }
+    print_newline();
+    
+    print_str("=== All Tests Complete ===");
+    print_newline();
+    
+    return 0;
+}

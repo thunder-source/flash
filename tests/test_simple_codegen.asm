@@ -1,9 +1,10 @@
-; Test with real IR instructions
+; Simplified codegen test - generate actual code
 bits 64
 default rel
 
 extern arena_init
 extern codegen_init
+extern codegen_generate_program
 extern codegen_generate_function
 extern codegen_get_output
 extern ir_program_create
@@ -19,26 +20,17 @@ extern ExitProcess
 %define TYPE_I32 2
 %define IR_MOVE 40
 %define IR_ADD 0
-%define IR_RETURN 55
-
-%define IR_OP_TEMP 0
-%define IR_OP_CONST 2
 
 section .data
-    test_func_name db "add_numbers", 0
-    msg_header db "=== Real Code Generation Test ===", 13, 10, 0
-    msg_step1 db "Creating IR function...", 13, 10, 0
-    msg_step2 db "Adding IR instructions...", 13, 10, 0
-    msg_step3 db "Generating assembly...", 13, 10, 0
+    test_func_name db "test_main", 0
+    msg_header db "=== Simple Codegen Test ===", 13, 10, 0
     msg_output db 13, 10, "Generated Assembly:", 13, 10, 0
-    msg_separator db "----------------------------------------", 13, 10, 0
-    msg_done db 13, 10, "Done!", 13, 10, 0
+    msg_done db 13, 10, "Test Complete!", 13, 10, 0
 
 section .bss
     stdout_handle resq 1
     bytes_written resq 1
     ir_func resq 1
-    ir_inst resq 1
 
 section .text
 global main
@@ -58,77 +50,60 @@ main:
     call print_str
     
     ; Initialize
-    xor rcx, rcx
     call arena_init
     test rax, rax
-    jz .error
+    jnz .error
     
     call codegen_init
     test rax, rax
     jnz .error
     
-    ; Step 1: Create IR
-    lea rcx, [msg_step1]
-    call print_str
-    
+    ; Create IR program
     call ir_program_create
     test rax, rax
     jz .error
     
+    ; Save IR program pointer
+    push rax
+    
+    ; Create function
     lea rcx, [test_func_name]
-    mov rdx, 11
+    mov rdx, 9
     mov r8, TYPE_I32
     call ir_function_create
     test rax, rax
     jz .error
     mov [ir_func], rax
     
-    ; Step 2: Add instructions
-    lea rcx, [msg_step2]
-    call print_str
-    
-    ; We'll manually create a simple function:
-    ; t0 = 10
-    ; t1 = 20
-    ; t2 = t0 + t1
-    ; return t2
-    
-    ; TODO: Need to add IR instruction creation functions
-    ; For now, just generate the empty function
-    
-    ; Step 3: Generate code
-    lea rcx, [msg_step3]
-    call print_str
-    
-    mov rcx, [ir_func]
+    ; Generate code for function only (skip program for now)
+    mov rcx, rax
     call codegen_generate_function
     test rax, rax
     jnz .error
+    pop rax      ; Clean up saved program pointer
     
     ; Get output
     call codegen_get_output
     test rax, rax
     jz .error
     
+    ; Print output label
     push rax
     push rdx
-    
-    ; Print output
     lea rcx, [msg_output]
     call print_str
-    lea rcx, [msg_separator]
-    call print_str
-    
     pop rdx
     pop rax
+    
+    ; Print generated code
     mov rcx, rax
     call print_buffer
     
-    lea rcx, [msg_separator]
-    call print_str
+    ; Print done
     lea rcx, [msg_done]
     call print_str
     
+    ; Success
     xor rcx, rcx
     call ExitProcess
     
@@ -136,6 +111,7 @@ main:
     mov rcx, 1
     call ExitProcess
 
+; Print null-terminated string
 print_str:
     push rbp
     mov rbp, rsp
@@ -157,7 +133,7 @@ print_str:
     mov r8, rdx
     mov rdx, rbx
     lea r9, [bytes_written]
-    mov qword [rbp - 32], 0
+    mov qword [rsp + 32], 0
     call WriteFile
     
 .exit:
@@ -166,6 +142,8 @@ print_str:
     pop rbp
     ret
 
+; Print buffer with length
+; RCX = buffer, RDX = length
 print_buffer:
     push rbp
     mov rbp, rsp
@@ -183,7 +161,7 @@ print_buffer:
     mov rdx, rbx
     mov r8, r12
     lea r9, [bytes_written]
-    mov qword [rbp - 32], 0
+    mov qword [rsp + 32], 0
     call WriteFile
     
 .exit:
