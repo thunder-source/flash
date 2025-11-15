@@ -92,6 +92,7 @@ global symtable_lookup_current_scope
 global symtable_enter_scope
 global symtable_exit_scope
 global symtable_hash
+global current_scope
 
 ; ============================================================================
 ; symtable_init - Initialize global symbol table
@@ -101,26 +102,26 @@ global symtable_hash
 symtable_init:
     push rbp
     mov rbp, rsp
-    
+
     lea rax, [global_symtable]
-    
+
     ; Zero out all buckets
     mov rcx, SYMTABLE_SIZE
     lea rdx, [rax + SymTable.buckets]
-    
+
 .clear_loop:
     mov qword [rdx], 0
     add rdx, 8
     dec rcx
     jnz .clear_loop
-    
+
     ; Set scope level to 0 (global)
     mov qword [rax + SymTable.scope_level], 0
     mov qword [rax + SymTable.parent], 0
-    
+
     ; Set as current scope
     mov [current_scope], rax
-    
+
     pop rbp
     ret
 
@@ -136,45 +137,45 @@ symtable_create:
     mov rbp, rsp
     sub rsp, 32
     push rbx
-    
+
     mov rbx, rcx  ; Save parent
-    
+
     ; Allocate symbol table
     mov rcx, SymTable_size
     call arena_alloc
     test rax, rax
     jz .error
-    
+
     ; Zero out buckets
     mov rcx, SYMTABLE_SIZE
     lea rdx, [rax + SymTable.buckets]
-    
+
 .clear_loop:
     mov qword [rdx], 0
     add rdx, 8
     dec rcx
     jnz .clear_loop
-    
+
     ; Set parent and scope level
     mov [rax + SymTable.parent], rbx
     test rbx, rbx
     jz .global_scope
-    
+
     ; Increment scope level from parent
     mov rcx, [rbx + SymTable.scope_level]
     inc rcx
     mov [rax + SymTable.scope_level], rcx
     jmp .done
-    
+
 .global_scope:
     mov qword [rax + SymTable.scope_level], 0
-    
+
 .done:
     pop rbx
     add rsp, 32
     pop rbp
     ret
-    
+
 .error:
     xor rax, rax
     pop rbx
@@ -193,14 +194,14 @@ symtable_create:
 symtable_hash:
     push rbp
     mov rbp, rsp
-    
+
     xor rax, rax        ; hash = 0
     test rdx, rdx
     jz .done
-    
+
     mov r8, rcx         ; String pointer
     mov r9, rdx         ; Length
-    
+
 .hash_loop:
     movzx r10, byte [r8]
     imul rax, 31        ; hash = hash * 31
@@ -208,10 +209,10 @@ symtable_hash:
     inc r8
     dec r9
     jnz .hash_loop
-    
+
     ; Modulo by table size (use AND since size is power of 2)
     and rax, SYMTABLE_SIZE - 1
-    
+
 .done:
     pop rbp
     ret
@@ -231,10 +232,10 @@ symtable_insert:
     push rbx
     push r12
     push r13
-    
+
     mov r12, rcx        ; Symbol table
     mov r13, rdx        ; Symbol
-    
+
     ; Check if symbol already exists in current scope
     mov rcx, r12
     mov rdx, [r13 + Symbol.name]
@@ -242,25 +243,25 @@ symtable_insert:
     call symtable_lookup_current_scope
     test rax, rax
     jnz .error          ; Symbol exists
-    
+
     ; Compute hash
     mov rcx, [r13 + Symbol.name]
     mov rdx, [r13 + Symbol.name_len]
     call symtable_hash
     mov rbx, rax        ; Save hash
-    
+
     ; Insert at head of chain
     lea rcx, [r12 + SymTable.buckets]
     mov rdx, [rcx + rbx * 8]        ; Get current head
     mov [r13 + Symbol.next], rdx    ; symbol->next = head
     mov [rcx + rbx * 8], r13        ; head = symbol
-    
+
     mov rax, 1          ; Success
     jmp .done
-    
+
 .error:
     xor rax, rax        ; Failure
-    
+
 .done:
     pop r13
     pop r12
@@ -286,56 +287,56 @@ symtable_lookup:
     push r12
     push r13
     push r14
-    
+
     mov r12, rcx        ; Symbol table
     mov r13, rdx        ; Name
     mov r14, r8         ; Length
-    
+
 .search_scope:
     ; Compute hash
     mov rcx, r13
     mov rdx, r14
     call symtable_hash
     mov rbx, rax
-    
+
     ; Get bucket head
     lea rcx, [r12 + SymTable.buckets]
     mov rax, [rcx + rbx * 8]
-    
+
     ; Search chain
 .search_chain:
     test rax, rax
     jz .not_in_scope
-    
+
     ; Compare name length first
     mov rcx, [rax + Symbol.name_len]
     cmp rcx, r14
     jne .next_symbol
-    
+
     ; Compare names
     mov rdi, [rax + Symbol.name]
     mov rsi, r13
     mov rcx, r14
     repe cmpsb
     je .found
-    
+
 .next_symbol:
     mov rax, [rax + Symbol.next]
     jmp .search_chain
-    
+
 .not_in_scope:
     ; Try parent scope
     mov r12, [r12 + SymTable.parent]
     test r12, r12
     jnz .search_scope
-    
+
     ; Not found
     xor rax, rax
     jmp .done
-    
+
 .found:
     ; RAX already points to symbol
-    
+
 .done:
     pop r14
     pop r13
@@ -362,45 +363,45 @@ symtable_lookup_current_scope:
     push r12
     push r13
     push r14
-    
+
     mov r12, rcx        ; Symbol table
     mov r13, rdx        ; Name
     mov r14, r8         ; Length
-    
+
     ; Compute hash
     mov rcx, r13
     mov rdx, r14
     call symtable_hash
     mov rbx, rax
-    
+
     ; Get bucket head
     lea rcx, [r12 + SymTable.buckets]
     mov rax, [rcx + rbx * 8]
-    
+
     ; Search chain
 .search_chain:
     test rax, rax
     jz .not_found
-    
+
     ; Compare name length first
     mov rcx, [rax + Symbol.name_len]
     cmp rcx, r14
     jne .next_symbol
-    
+
     ; Compare names
     mov rdi, [rax + Symbol.name]
     mov rsi, r13
     mov rcx, r14
     repe cmpsb
     je .found
-    
+
 .next_symbol:
     mov rax, [rax + Symbol.next]
     jmp .search_chain
-    
+
 .not_found:
     xor rax, rax
-    
+
 .found:
     pop r14
     pop r13
@@ -419,14 +420,14 @@ symtable_enter_scope:
     push rbp
     mov rbp, rsp
     sub rsp, 32
-    
+
     ; Create new symbol table with current as parent
     mov rcx, [current_scope]
     call symtable_create
-    
+
     ; Set as current scope
     mov [current_scope], rax
-    
+
     add rsp, 32
     pop rbp
     ret
@@ -439,19 +440,19 @@ symtable_enter_scope:
 symtable_exit_scope:
     push rbp
     mov rbp, rsp
-    
+
     ; Get current scope
     mov rax, [current_scope]
     test rax, rax
     jz .error
-    
+
     ; Get parent
     mov rax, [rax + SymTable.parent]
     mov [current_scope], rax
-    
+
     pop rbp
     ret
-    
+
 .error:
     xor rax, rax
     pop rbp

@@ -1,0 +1,53 @@
+// Flash Language Example - Simple Test Program
+// This program tests basic Flash language features
+// Used to validate the integrated compiler pipeline
+
+fn fibonacci(n: i32) -> i32 {
+    if n <= 1 {
+        return n;
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+fn factorial(n: i32) -> i32 {
+    if n <= 1 {
+        return 1;
+    }
+    return n * factorial(n - 1);
+}
+
+fn main() -> i32 {
+    // Test variables and basic arithmetic
+    let x: i32 = 10;
+    let y: i32 = 20;
+    let sum: i32 = x + y;
+
+    // Test function calls
+    let fib_result: i32 = fibonacci(8);
+    let fact_result: i32 = factorial(5);
+
+    // Test control flow
+    if sum > 25 {
+        let result: i32 = fib_result + fact_result;
+        return result;
+    } else {
+        return sum;
+    }
+}
+
+// Test struct definition
+struct Point {
+    x: i32,
+    y: i32
+}
+
+// Test function with struct parameter
+fn distance_squared(p1: Point, p2: Point) -> i32 {
+    let dx: i32 = p1.x - p2.x;
+    let dy: i32 = p1.y - p2.y;
+    return dx * dx + dy * dy;
+}
+
+// Test global constants
+const MAX_SIZE: i32 = 1000;
+const PI: f32 = 3.14159;
