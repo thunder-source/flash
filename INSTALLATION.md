@@ -9,6 +9,7 @@ Your Flash compiler is now fully packaged and ready for distribution across Wind
 ### 1. GitHub Actions CI/CD (`.github/workflows/release.yml`)
 
 **Automatically:**
+
 - Triggers on tag push (e.g., `git tag -a v0.1.0`)
 - Assembles `flash.exe` from `bin/flash.asm`
 - Creates release zip with `bin/`, `include/`, `lib/`
@@ -16,39 +17,47 @@ Your Flash compiler is now fully packaged and ready for distribution across Wind
 - Uploads artifacts as release assets
 
 **To use:**
+
 ```cmd
 git tag -a v0.2.0 -m "Release version 0.2.0"
 git push origin v0.2.0
 ```
+
 → Workflow runs automatically, creates Release on GitHub
 
 ### 2. Package Manager Manifests (`packaging/`)
 
 #### Chocolatey (`packaging/chocolatey/`)
+
 - **flash-compiler.nuspec** — Package metadata
 - **tools/chocolateyInstall.bat** — Installation script
 - **tools/chocolateyUninstall.bat** — Cleanup script
 
 **Users can install:**
+
 ```powershell
 choco install flash-compiler
 ```
 
 #### Scoop (`packaging/scoop/flash.json`)
+
 - Manifest for Scoop bucket
 - Auto-detects updates from GitHub releases
 
 **Users can install:**
+
 ```powershell
 scoop bucket add flash https://github.com/YOUR_USERNAME/flash-bucket
 scoop install flash
 ```
 
 #### WinGet (`packaging/winget/thunder-source.flash.yaml`)
+
 - Manifest for Windows Package Manager
 - Supports portable execution of `bin/flash.exe`
 
 **Users can install:**
+
 ```powershell
 winget install thunder-source.flash
 ```
@@ -56,23 +65,27 @@ winget install thunder-source.flash
 ### 3. Installation & Uninstallation Scripts
 
 #### User-Level Install (`scripts/install.ps1`)
+
 - Extracts release zip
 - Copies to `%LocalAppData%\Programs\Flash`
 - Adds `bin/` to user PATH
 - Works with any extracted release folder
 
 **Usage:**
+
 ```powershell
 Expand-Archive -Path "flash-0.1.0-windows-x64.zip" -DestinationPath "."
 .\scripts\install.ps1
 ```
 
 #### Uninstall (`scripts/uninstall.ps1`)
+
 - Removes Flash directory
 - Cleans up PATH entries
 - Graceful error handling
 
 **Usage:**
+
 ```powershell
 .\scripts\uninstall.ps1
 ```
@@ -80,10 +93,12 @@ Expand-Archive -Path "flash-0.1.0-windows-x64.zip" -DestinationPath "."
 ### 4. Build Targets (`Makefile`)
 
 #### `nmake release`
+
 - Assembles `bin/flash.asm` → `build/flash.exe`
 - Packages with `include/`, `lib/` into `dist/flash-vX.Y.Z-windows-x64.zip`
 
 #### `nmake update-manifests VERSION=X.Y.Z`
+
 - Calculates SHA256 hash of release zip
 - Updates all package manifests automatically:
   - Chocolatey: version in nuspec
@@ -91,11 +106,13 @@ Expand-Archive -Path "flash-0.1.0-windows-x64.zip" -DestinationPath "."
   - WinGet: version and hash in YAML
 
 #### `nmake clean`
+
 - Removes build artifacts and dist folder
 
 ### 5. Release Helper Script (`packaging/update-manifests.ps1`)
 
 Automatically updates all package manifests with:
+
 - New version number
 - SHA256 hash of release zip
 - GitHub release download URLs
@@ -112,32 +129,39 @@ nmake update-manifests VERSION=0.2.0
 ## Installation Methods Available
 
 ### Method 1: Chocolatey (Recommended for Windows)
+
 ```powershell
 choco install flash-compiler
 ```
+
 - One-command installation
 - Automatic updates via `choco upgrade`
 - PATH configured automatically
 - Requires Chocolatey manager
 
 ### Method 2: Scoop
+
 ```powershell
 scoop bucket add flash https://github.com/thunder-source/flash-bucket
 scoop install flash
 ```
+
 - User-level installation
 - Portable, no admin needed
 - Easy uninstall via `scoop uninstall flash`
 
 ### Method 3: WinGet
+
 ```powershell
 winget install thunder-source.flash
 ```
+
 - Official Windows Package Manager
 - Single command, PATH configured
 - Native Windows experience
 
 ### Method 4: Manual Installation
+
 ```powershell
 # Download release from GitHub
 Invoke-WebRequest -Uri "https://github.com/thunder-source/flash/releases/download/v0.1.0/flash-0.1.0-windows-x64.zip" -OutFile "flash.zip"
@@ -146,6 +170,7 @@ Invoke-WebRequest -Uri "https://github.com/thunder-source/flash/releases/downloa
 Expand-Archive -Path "flash.zip" -DestinationPath "."
 .\scripts\install.ps1
 ```
+
 - Full control over installation
 - Works with any GitHub release
 
@@ -185,23 +210,27 @@ flash/
 ## Complete Release Workflow
 
 ### Step 1: Prepare
+
 ```cmd
 # Update version in Makefile
 # VERSION = 0.2.0
 ```
 
 ### Step 2: Build
+
 ```cmd
 nmake clean
 nmake release
 ```
 
 ### Step 3: Update Manifests
+
 ```cmd
 nmake update-manifests VERSION=0.2.0
 ```
 
 ### Step 4: Test Locally
+
 ```powershell
 Expand-Archive -Path "dist/flash-v0.2.0-windows-x64.zip" -DestinationPath "test"
 .\scripts\install.ps1 -SourceDir "test"
@@ -209,6 +238,7 @@ Expand-Archive -Path "dist/flash-v0.2.0-windows-x64.zip" -DestinationPath "test"
 ```
 
 ### Step 5: Tag and Push
+
 ```cmd
 git add .
 git commit -m "Release v0.2.0"
@@ -218,11 +248,13 @@ git push origin v0.2.0
 ```
 
 ### Step 6: GitHub Actions Runs
+
 - Automatically builds release
 - Creates GitHub Release
 - Uploads zip to Assets
 
 ### Step 7: Publish to Package Managers
+
 - **Chocolatey**: Run `choco pack` and submit
 - **Scoop**: Push to your bucket repo
 - **WinGet**: Submit PR to microsoft/winget-pkgs
@@ -235,7 +267,7 @@ git push origin v0.2.0
 ✅ **Easy Updates** — `nmake update-manifests` handles all versions  
 ✅ **Professional Distribution** — Compatible with Windows package ecosystems  
 ✅ **Portable** — Works on any Windows 10+ system  
-✅ **Verifiable** — SHA256 hashes ensure integrity  
+✅ **Verifiable** — SHA256 hashes ensure integrity
 
 ## Next Steps
 

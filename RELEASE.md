@@ -28,6 +28,7 @@ nmake update-manifests VERSION=X.Y.Z
 ```
 
 This automatically updates:
+
 - `packaging/chocolatey/flash-compiler.nuspec`
 - `packaging/scoop/flash.json`
 - `packaging/winget/thunder-source.flash.yaml`
@@ -65,6 +66,7 @@ git push origin vX.Y.Z
 ### 6. Automated: GitHub Actions
 
 When you push the tag, GitHub Actions automatically:
+
 - ✅ Assembles `flash.exe`
 - ✅ Creates the release zip
 - ✅ Creates a GitHub Release
@@ -85,6 +87,7 @@ choco push flash-compiler.X.Y.Z.nupkg -s https://push.chocolatey.org/
 #### Scoop
 
 Option A: Use your own bucket
+
 ```powershell
 # Push updated flash.json to your bucket repo
 git -C ../scoop-bucket add packaging/flash.json
@@ -93,6 +96,7 @@ git -C ../scoop-bucket push
 ```
 
 Option B: Submit to official Main bucket
+
 ```powershell
 # Fork https://github.com/ScoopInstaller/Main
 # Add flash.json to bucket/
@@ -113,17 +117,20 @@ Option B: Submit to official Main bucket
 The `packaging/update-manifests.ps1` script updates:
 
 ### Chocolatey
+
 - `packaging/chocolatey/flash-compiler.nuspec`
   - `<version>` element
   - Download URL (inferred from package content)
 
 ### Scoop
+
 - `packaging/scoop/flash.json`
   - `"version"` field
   - `"hash"` field (SHA256 of zip)
   - `"url"` field (GitHub release URL)
 
 ### WinGet
+
 - `packaging/winget/thunder-source.flash.yaml`
   - `PackageVersion` field
   - `InstallerUrl` field
@@ -177,21 +184,25 @@ git push origin v0.1.0
 ## Troubleshooting
 
 ### Release build fails
+
 - Ensure NASM is installed: `nasm -version`
 - Check `bin/flash.asm` compiles: `nasm -f win64 bin/flash.asm -o build/test.obj`
 - Ensure `include/` and `lib/` directories exist
 
 ### Update script fails
+
 - Verify `packaging/` directory structure is intact
 - Check file paths in error message
 - Ensure ZIP file exists and is accessible
 
 ### GitHub Actions fails
+
 - Check `.github/workflows/release.yml` is valid YAML
 - Verify tag format matches `v*` (e.g., `v1.0.0`)
 - Check runner has NASM installed (choco install step)
 
 ### Package manager submission fails
+
 - **Chocolatey**: Verify nuspec XML is well-formed
 - **Scoop**: Ensure JSON is valid, hash matches
 - **WinGet**: Run validator: `wingetcreate validate manifests/t/thunder-source/flash/X.Y.Z`

@@ -6,7 +6,7 @@ You now have a **production-ready distribution system** for Flash Compiler with:
 
 1. ✅ GitHub Actions CI/CD automation
 2. ✅ Chocolatey package manifest
-3. ✅ Scoop bucket manifest  
+3. ✅ Scoop bucket manifest
 4. ✅ WinGet package manifest
 5. ✅ User-friendly install/uninstall scripts
 6. ✅ Automated manifest updates
@@ -18,24 +18,26 @@ You now have a **production-ready distribution system** for Flash Compiler with:
 
 ### Users can install Flash via:
 
-| Method | Command | Features |
-|--------|---------|----------|
-| **Chocolatey** | `choco install flash-compiler` | Automatic updates, admin features |
-| **Scoop** | `scoop install flash` (after bucket setup) | User-level, portable, simple |
-| **WinGet** | `winget install thunder-source.flash` | Official Windows Package Manager |
-| **Manual** | Download + `scripts\install.ps1` | Full control, no package manager needed |
+| Method         | Command                                    | Features                                |
+| -------------- | ------------------------------------------ | --------------------------------------- |
+| **Chocolatey** | `choco install flash-compiler`             | Automatic updates, admin features       |
+| **Scoop**      | `scoop install flash` (after bucket setup) | User-level, portable, simple            |
+| **WinGet**     | `winget install thunder-source.flash`      | Official Windows Package Manager        |
+| **Manual**     | Download + `scripts\install.ps1`           | Full control, no package manager needed |
 
 ---
 
 ## 📋 Files Created
 
 ### GitHub Actions
+
 ```
 .github/workflows/
 └── release.yml                   (56 lines) - Auto-build on tag
 ```
 
 ### Package Managers
+
 ```
 packaging/
 ├── README.md                     - Detailed submission guide
@@ -52,6 +54,7 @@ packaging/
 ```
 
 ### Installation & Documentation
+
 ```
 scripts/
 ├── install.ps1                   - User-level installer
@@ -70,23 +73,27 @@ Root files:
 ### For Next Version (e.g., v0.2.0)
 
 **1. Prepare:**
+
 ```cmd
 # Edit Makefile
 # VERSION = 0.2.0
 ```
 
 **2. Build:**
+
 ```cmd
 nmake clean
 nmake release
 ```
 
 **3. Update Manifests:**
+
 ```cmd
 nmake update-manifests VERSION=0.2.0
 ```
 
 **4. Test:**
+
 ```powershell
 Expand-Archive -Path "dist/flash-v0.2.0-windows-x64.zip" -DestinationPath "test"
 .\scripts\install.ps1 -SourceDir "test"
@@ -94,6 +101,7 @@ Expand-Archive -Path "dist/flash-v0.2.0-windows-x64.zip" -DestinationPath "test"
 ```
 
 **5. Commit & Tag:**
+
 ```cmd
 git add .
 git commit -m "Release v0.2.0"
@@ -103,6 +111,7 @@ git push origin v0.2.0
 ```
 
 **6. GitHub Actions (Automatic):**
+
 - ✅ Builds release zip
 - ✅ Creates GitHub Release
 - ✅ Uploads artifacts
@@ -133,6 +142,7 @@ See `packaging/README.md` for detailed instructions.
 ## 🎯 Current State
 
 ### What's Ready Now
+
 - ✅ Release v0.1.0 built and packaged (7.3 KB zip)
 - ✅ Installation tested (extract + install + uninstall)
 - ✅ GitHub Actions workflow ready to trigger
@@ -140,6 +150,7 @@ See `packaging/README.md` for detailed instructions.
 - ✅ Documentation complete
 
 ### To Do (One-Time Setup)
+
 - [ ] Push initial tag to GitHub: `git tag -a v0.1.0 && git push origin v0.1.0`
 - [ ] Verify GitHub Actions completes successfully
 - [ ] Optional: Submit to Chocolatey community repo
@@ -147,6 +158,7 @@ See `packaging/README.md` for detailed instructions.
 - [ ] Optional: Submit to WinGet (microsoft/winget-pkgs)
 
 ### For Future Releases
+
 - Just run: `nmake release` and `git tag`
 - Everything else is automated
 
@@ -154,11 +166,11 @@ See `packaging/README.md` for detailed instructions.
 
 ## 📚 Documentation
 
-| File | Purpose |
-|------|---------|
-| **RELEASE.md** | Step-by-step release guide |
-| **INSTALLATION.md** | Installation methods & user guide |
-| **packaging/README.md** | Package manager submission guide |
+| File                         | Purpose                            |
+| ---------------------------- | ---------------------------------- |
+| **RELEASE.md**               | Step-by-step release guide         |
+| **INSTALLATION.md**          | Installation methods & user guide  |
+| **packaging/README.md**      | Package manager submission guide   |
 | **verify-release-setup.ps1** | Pre-release verification checklist |
 
 ---
@@ -188,13 +200,16 @@ choco push flash-compiler.0.1.0.nupkg -s https://push.chocolatey.org/
 ## 📞 Support Resources
 
 ### For Releases
+
 - See: `RELEASE.md`
 
 ### For Installation Issues
+
 - See: `INSTALLATION.md`
 - See: `scripts/install.ps1` (fully documented)
 
 ### For Package Manager Issues
+
 - See: `packaging/README.md`
 - Chocolatey: https://docs.chocolatey.org/
 - Scoop: https://scoop.sh/
@@ -209,13 +224,14 @@ choco push flash-compiler.0.1.0.nupkg -s https://push.chocolatey.org/
 ✨ **Professional** — Compatible with Windows package ecosystems  
 ✨ **Developer-Friendly** — Clear, well-documented setup  
 ✨ **Scalable** — Easily handle future versions  
-✨ **Verifiable** — SHA256 hashes for integrity checking  
+✨ **Verifiable** — SHA256 hashes for integrity checking
 
 ---
 
 ## 🎓 What You've Learned
 
 This setup demonstrates:
+
 - GitHub Actions CI/CD automation
 - Package manager distribution
 - PowerShell scripting for cross-platform compatibility

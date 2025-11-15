@@ -31,6 +31,7 @@ choco install flash-compiler
 ### Option 2: Scoop
 
 First, add the Flash bucket:
+
 ```powershell
 scoop bucket add flash https://github.com/thunder-source/flash-bucket
 scoop install flash
@@ -45,6 +46,7 @@ winget install thunder-source.flash
 ### Option 4: Manual Installation
 
 Download the latest release from GitHub:
+
 ```powershell
 Invoke-WebRequest -Uri "https://github.com/thunder-source/flash/releases/download/v0.1.0/flash-0.1.0-windows-x64.zip" -OutFile "flash.zip"
 Expand-Archive -Path "flash.zip" -DestinationPath "$env:DOWNLOADS"
@@ -56,20 +58,24 @@ Expand-Archive -Path "flash.zip" -DestinationPath "$env:DOWNLOADS"
 ### Chocolatey Community Repository
 
 1. **Prerequisites:**
+
    - Chocolatey CLI (`choco` command)
    - Account on https://community.chocolatey.org/
    - API key from your account
 
 2. **Build the package:**
+
    ```powershell
    cd packaging\chocolatey
    choco pack flash-compiler.nuspec
    ```
 
 3. **Submit:**
+
    ```powershell
    choco push flash-compiler.0.1.0.nupkg -s https://push.chocolatey.org/
    ```
+
    When prompted, enter your API key.
 
 4. **Moderation:** Wait for package review (typically 1-7 days). You'll receive email confirmation.
@@ -79,17 +85,20 @@ Expand-Archive -Path "flash.zip" -DestinationPath "$env:DOWNLOADS"
 ### Scoop Bucket
 
 1. **Create a separate repository** (recommended):
+
    ```
    https://github.com/thunder-source/flash-bucket
    ```
 
 2. **Copy the manifest** to the bucket:
+
    ```
    bucket/
    └── flash.json
    ```
 
 3. **Test the bucket:**
+
    ```powershell
    scoop bucket add flash https://github.com/thunder-source/flash-bucket
    scoop install flash
@@ -107,6 +116,7 @@ Expand-Archive -Path "flash.zip" -DestinationPath "$env:DOWNLOADS"
 1. **Fork** https://github.com/microsoft/winget-pkgs
 
 2. **Create the manifest structure:**
+
    ```
    manifests/
    └── t/
@@ -119,6 +129,7 @@ Expand-Archive -Path "flash.zip" -DestinationPath "$env:DOWNLOADS"
    ```
 
 3. **Validate manifest:**
+
    ```powershell
    wingetcreate validate manifests\t\thunder-source\flash\0.1.0
    ```
@@ -135,16 +146,19 @@ Expand-Archive -Path "flash.zip" -DestinationPath "$env:DOWNLOADS"
 When releasing a new version:
 
 1. **Update version** in all manifests:
+
    - `flash-compiler.nuspec` → `<version>`
    - `flash.json` (Scoop) → `"version"`
    - `thunder-source.flash.yaml` (WinGet) → `PackageVersion`
 
 2. **Update download URLs** to point to the new release:
+
    ```
    https://github.com/thunder-source/flash/releases/download/vX.Y.Z/flash-X.Y.Z-windows-x64.zip
    ```
 
 3. **Calculate SHA256 hash** of the release zip:
+
    ```powershell
    (Get-FileHash "dist\flash-X.Y.Z-windows-x64.zip" -Algorithm SHA256).Hash
    ```
@@ -157,6 +171,7 @@ When releasing a new version:
 ## Automated Publishing (Future)
 
 The GitHub Actions workflow (`.github/workflows/release.yml`) currently:
+
 - ✅ Builds on tag push (`v*`)
 - ✅ Creates release on GitHub
 - ⏳ Can be extended to auto-publish to Chocolatey, Scoop, etc.
@@ -164,10 +179,12 @@ The GitHub Actions workflow (`.github/workflows/release.yml`) currently:
 To enable automatic publishing:
 
 1. **For Chocolatey:**
+
    - Add `CHOCOLATEY_API_KEY` secret to GitHub
    - Add `choco push` step to workflow
 
 2. **For Scoop:**
+
    - Set up auto-sync from this repo to your bucket repo
    - Or add workflow step to push manifest to bucket
 
@@ -177,16 +194,19 @@ To enable automatic publishing:
 ## File Descriptions
 
 ### chocolatey/
+
 - **flash-compiler.nuspec**: Package metadata and dependencies
 - **tools/chocolateyInstall.bat**: Installation script
 - **tools/chocolateyUninstall.bat**: Uninstallation script
 
 ### scoop/
+
 - **flash.json**: Manifest with download URL and hash
   - Used by Scoop to verify and extract packages
   - Supports auto-updates via GitHub releases
 
 ### winget/
+
 - **thunder-source.flash.yaml**: WinGet package manifest
   - Describes package identity, version, installers
   - Can be split into multiple YAML files for complex packages
@@ -194,16 +214,19 @@ To enable automatic publishing:
 ## Troubleshooting
 
 ### Chocolatey
+
 - **Package validation fails**: Ensure `nuspec` XML is well-formed
 - **Hash mismatch**: Use `choco download flash-compiler` to verify
 - **Already exists error**: Submit as a new version to update
 
 ### Scoop
+
 - **Bucket not found**: Verify bucket URL is correct
 - **Checksum mismatch**: Recalculate hash from release zip
 - **Auto-update fails**: Check GitHub releases exist with tag format `vX.Y.Z`
 
 ### WinGet
+
 - **Validation error**: Run validator against manifest
 - **Installer not found**: Verify URL is accessible
 - **SHA256 mismatch**: Recalculate from actual file
@@ -211,6 +234,7 @@ To enable automatic publishing:
 ## Questions?
 
 For package management questions, refer to:
+
 - **Chocolatey**: https://github.com/chocolatey/choco/discussions
 - **Scoop**: https://github.com/ScoopInstaller/Scoop/discussions
 - **WinGet**: https://github.com/microsoft/winget-pkgs/discussions

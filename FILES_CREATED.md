@@ -1,16 +1,19 @@
 # Files Created for Distribution & Installation
 
 ## Summary
+
 This document lists all files created to enable Flash Compiler installation and distribution across Windows via multiple package managers.
 
 ## New Files (18 total)
 
 ### GitHub Actions CI/CD
+
 ```
 .github/workflows/release.yml                    (56 lines)
 ```
 
 ### Package Manager Configuration
+
 ```
 packaging/README.md                              (Detailed submission guide)
 packaging/update-manifests.ps1                   (Auto-update versions & hashes)
@@ -22,17 +25,20 @@ packaging/winget/thunder-source.flash.yaml       (WinGet package manifest)
 ```
 
 ### Installation & Uninstallation
+
 ```
 scripts/install.ps1                              (User-level installer, ~55 lines)
 scripts/uninstall.ps1                            (Clean uninstaller, ~30 lines)
 ```
 
 ### Build System
+
 ```
 Makefile                                         (UPDATED: added release targets)
 ```
 
 ### Documentation & Guides
+
 ```
 RELEASE.md                                       (Complete release workflow guide)
 INSTALLATION.md                                  (Installation methods for users)
@@ -40,11 +46,13 @@ DISTRIBUTION_COMPLETE.md                         (This delivery summary)
 ```
 
 ### Utilities & Verification
+
 ```
 verify-release-setup.ps1                         (Pre-release verification checklist)
 ```
 
 ### Generated Artifacts
+
 ```
 dist/flash-v0.1.0-windows-x64.zip                (7.3 KB release package, auto-generated)
 ```
@@ -52,16 +60,20 @@ dist/flash-v0.1.0-windows-x64.zip                (7.3 KB release package, auto-g
 ## Updated Files
 
 ### Makefile
+
 Added targets:
+
 - `nmake release` — Build and package release
 - `nmake update-manifests VERSION=X.Y.Z` — Auto-update all manifests
 
 ### scripts/install.ps1
+
 - Registry-based PATH updates (avoids Windows truncation)
 - Auto-detects extracted zip structure
 - User-friendly output
 
 ### scripts/uninstall.ps1
+
 - Registry-based PATH cleanup
 - Graceful error handling
 - Full directory removal
@@ -114,29 +126,34 @@ flash/
 ## How to Use These Files
 
 ### For Building a Release
+
 ```cmd
 nmake release
 nmake update-manifests VERSION=0.2.0
 ```
 
 ### For Installing Flash
+
 ```powershell
 Expand-Archive -Path "flash-v0.1.0-windows-x64.zip" -DestinationPath "."
 .\scripts\install.ps1
 ```
 
 ### For Uninstalling
+
 ```powershell
 .\scripts\uninstall.ps1
 ```
 
 ### For Releasing to GitHub
+
 ```cmd
 git tag -a v0.1.0 -m "Release message"
 git push origin v0.1.0
 ```
 
 ### For Submitting to Package Managers
+
 See `packaging/README.md` for detailed instructions per manager.
 
 ## Key Features Implemented
@@ -148,11 +165,12 @@ See `packaging/README.md` for detailed instructions per manager.
 ✅ SHA256 hash calculation for integrity  
 ✅ Pre-release verification checklist  
 ✅ GitHub Actions automation  
-✅ Professional package manager integration  
+✅ Professional package manager integration
 
 ## Verification
 
 All files have been:
+
 - ✅ Created and tested
 - ✅ Verified for syntax correctness
 - ✅ Tested in real-world scenarios
