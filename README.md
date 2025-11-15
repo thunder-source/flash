@@ -8,6 +8,7 @@ A high-performance compiler written in pure x86-64 assembly, designed to beat C/
 **Phase 4: Parser Implementation** ✓ Complete
 
 The compiler now includes:
+
 - **Lexer**: Fast keyword recognition, efficient tokenization, full token support
 - **Parser**: Recursive descent parser building Abstract Syntax Trees
 - **Memory**: Arena-based allocator for fast AST node allocation
@@ -170,6 +171,6 @@ Expand-Archive -Path .\dist\flash-vX.Y.Z-windows-x64.zip -DestinationPath .\tmp
 ## License
 
 This project is open source; see repository for license details.
-
 ````
+
 - **Phase 7**: Optimization passes
