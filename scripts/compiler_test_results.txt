@@ -1,0 +1,439 @@
+Testing Flash Compiler with example files 
+=================================== 
+ 
+Testing: comprehensive.fl 
+---------------------------- 
+File content: 
+---------------------------- 
+; ============================================================================
+; Comprehensive Flash Program - Tests All Language Features
+; ============================================================================
+; Features tested:
+; - Variable declarations (let, mut)
+; - Arithmetic operations
+; - Function definitions and calls
+; - Control flow (if/else)
+; - Loops (while, for)
+; - Return statements
+; ============================================================================
+
+; Calculate factorial using recursion
+fn factorial(n: i32) -> i32 {
+    if n <= 1 {
+        return 1;
+    }
+    let result = n * factorial(n - 1);
+    return result;
+}
+
+; Calculate fibonacci using iteration
+fn fibonacci(n: i32) -> i32 {
+    if n <= 1 {
+        return n;
+    }
+    
+    let mut a = 0;
+    let mut b = 1;
+    let mut i = 2;
+    
+    while i <= n {
+        let temp = a + b;
+        a = b;
+        b = temp;
+        i = i + 1;
+    }
+    
+    return b;
+}
+
+; Sum numbers from 1 to n
+fn sum_to_n(n: i32) -> i32 {
+    let mut total = 0;
+    let mut i = 1;
+    
+    while i <= n {
+        total = total + i;
+        i = i + 1;
+    }
+    
+    return total;
+}
+
+; Check if number is prime
+fn is_prime(n: i32) -> i32 {
+    if n < 2 {
+        return 0;
+    }
+    
+    if n == 2 {
+        return 1;
+    }
+    
+    let mut i = 2;
+    while i * i <= n {
+        if n % i == 0 {
+            return 0;
+        }
+        i = i + 1;
+    }
+    
+    return 1;
+}
+
+; Main entry point
+fn main() -> i32 {
+    print_str("=== Flash Compiler Comprehensive Test ===");
+    print_newline();
+    
+    ; Test 1: Simple arithmetic
+    print_str("Test 1: Arithmetic");
+    print_newline();
+    let x = 10;
+    let y = 20;
+    let z = x + y;
+    print_str("10 + 20 = ");
+    print_int(z);
+    print_newline();
+    
+    ; Test 2: Factorial
+    print_str("Test 2: Factorial(5) = ");
+    let fact = factorial(5);
+    print_int(fact);
+    print_newline();
+    
+    ; Test 3: Fibonacci
+    print_str("Test 3: Fibonacci(10) = ");
+    let fib = fibonacci(10);
+    print_int(fib);
+    print_newline();
+    
+    ; Test 4: Sum
+    print_str("Test 4: Sum(1..10) = ");
+    let total = sum_to_n(10);
+    print_int(total);
+    print_newline();
+    
+    ; Test 5: Prime check
+    print_str("Test 5: Is 17 prime? ");
+    let prime = is_prime(17);
+    if prime == 1 {
+        print_str("Yes");
+    } else {
+        print_str("No");
+    }
+    print_newline();
+    
+    ; Test 6: Conditional
+    print_str("Test 6: Conditional");
+    print_newline();
+    let a = 5;
+    if a > 3 {
+        print_str("5 > 3: True");
+    } else {
+        print_str("5 > 3: False");
+    }
+    print_newline();
+    
+    ; Test 7: Loop with counter
+    print_str("Test 7: Loop 1..5:");
+    print_newline();
+    let mut counter = 1;
+    while counter <= 5 {
+        print_int(counter);
+        print_str(" ");
+        counter = counter + 1;
+    }
+    print_newline();
+    
+    print_str("=== All Tests Complete ===");
+    print_newline();
+    
+    return 0;
+}
+ 
+Compiling... 
+[SUCCESS] Compiled successfully 
+ 
+ 
+=================================== 
+ 
+Testing: control_flow.fl 
+---------------------------- 
+File content: 
+---------------------------- 
+// Control flow test
+fn test_if(x: i32) -> i32 {
+    if x > 0 {
+        return 1;
+    } else if x < 0 {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+fn test_while() -> i32 {
+    let mut sum: i32 = 0;
+    let mut i: i32 = 0;
+    
+    while i < 10 {
+        sum = sum + i;
+        i = i + 1;
+    }
+    
+    return sum;
+}
+
+fn test_for() -> i32 {
+    let mut sum: i32 = 0;
+    
+    for i in 0..10 {
+        sum = sum + i;
+    }
+    
+    return sum;
+}
+
+fn main() -> i32 {
+    let a: i32 = test_if(5);
+    let b: i32 = test_while();
+    let c: i32 = test_for();
+    
+    return a + b + c;
+}
+ 
+Compiling... 
+[SUCCESS] Compiled successfully 
+ 
+ 
+=================================== 
+ 
+Testing: fibonacci.fl 
+---------------------------- 
+File content: 
+---------------------------- 
+// Fibonacci calculator
+fn fibonacci(n: i32) -> i32 {
+    if n <= 1 {
+        return n;
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+fn main() -> i32 {
+    let result: i32 = fibonacci(10);
+    return result;
+}
+ 
+Compiling... 
+[SUCCESS] Compiled successfully 
+ 
+ 
+=================================== 
+ 
+Testing: hello.fl 
+---------------------------- 
+File content: 
+---------------------------- 
+// Simple Hello World program
+fn main() -> i32 {
+    return 0;
+}
+ 
+Compiling... 
+[SUCCESS] Compiled successfully 
+ 
+ 
+=================================== 
+ 
+Testing: nested.fl 
+---------------------------- 
+File content: 
+---------------------------- 
+// Nested control structures
+fn complex_logic(n: i32) -> i32 {
+    let mut result: i32 = 0;
+    
+    for i in 0..n {
+        if i % 2 == 0 {
+            let mut j: i32 = 0;
+            while j < i {
+                result = result + 1;
+                j = j + 1;
+            }
+        } else {
+            result = result + i;
+        }
+    }
+    
+    return result;
+}
+
+fn main() -> i32 {
+    return complex_logic(10);
+}
+ 
+Compiling... 
+[SUCCESS] Compiled successfully 
+ 
+ 
+=================================== 
+ 
+Testing: pointers.fl 
+---------------------------- 
+File content: 
+---------------------------- 
+// Pointer operations test
+fn swap(a: *i32, b: *i32) {
+    let temp: i32 = *a;
+    *a = *b;
+    *b = temp;
+}
+
+fn main() -> i32 {
+    let mut x: i32 = 10;
+    let mut y: i32 = 20;
+    
+    swap(&x, &y);
+    
+    return x + y;
+}
+ 
+Compiling... 
+[SUCCESS] Compiled successfully 
+ 
+ 
+=================================== 
+ 
+Testing: simple_test.fl 
+---------------------------- 
+File content: 
+---------------------------- 
+// Flash Language Example - Simple Test Program
+// This program tests basic Flash language features
+// Used to validate the integrated compiler pipeline
+
+fn fibonacci(n: i32) -> i32 {
+    if n <= 1 {
+        return n;
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+fn factorial(n: i32) -> i32 {
+    if n <= 1 {
+        return 1;
+    }
+    return n * factorial(n - 1);
+}
+
+fn main() -> i32 {
+    // Test variables and basic arithmetic
+    let x: i32 = 10;
+    let y: i32 = 20;
+    let sum: i32 = x + y;
+
+    // Test function calls
+    let fib_result: i32 = fibonacci(8);
+    let fact_result: i32 = factorial(5);
+
+    // Test control flow
+    if sum > 25 {
+        let result: i32 = fib_result + fact_result;
+        return result;
+    } else {
+        return sum;
+    }
+}
+
+// Test struct definition
+struct Point {
+    x: i32,
+    y: i32
+}
+
+// Test function with struct parameter
+fn distance_squared(p1: Point, p2: Point) -> i32 {
+    let dx: i32 = p1.x - p2.x;
+    let dy: i32 = p1.y - p2.y;
+    return dx * dx + dy * dy;
+}
+
+// Test global constants
+const MAX_SIZE: i32 = 1000;
+const PI: f32 = 3.14159;
+ 
+Compiling... 
+[SUCCESS] Compiled successfully 
+ 
+ 
+=================================== 
+ 
+Testing: types.fl 
+---------------------------- 
+File content: 
+---------------------------- 
+// Different type declarations
+fn test_types() -> i32 {
+    let a: i8 = 10;
+    let b: i16 = 100;
+    let c: i32 = 1000;
+    let d: i64 = 10000;
+    
+    let e: u8 = 10;
+    let f: u16 = 100;
+    let g: u32 = 1000;
+    let h: u64 = 10000;
+    
+    let x: f32 = 3.14;
+    let y: f64 = 2.718;
+    
+    let flag: bool = true;
+    let ch: char = 65;
+    
+    return 0;
+}
+
+fn test_pointers() -> i32 {
+    let mut x: i32 = 42;
+    let ptr: *i32 = &x;
+    let ptr2: **i32 = &ptr;
+    
+    return *ptr;
+}
+
+fn main() -> i32 {
+    test_types();
+    return test_pointers();
+}
+ 
+Compiling... 
+[SUCCESS] Compiled successfully 
+ 
+ 
+=================================== 
+ 
+Testing: variables.fl 
+---------------------------- 
+File content: 
+---------------------------- 
+// Variable declaration and assignment test
+fn main() -> i32 {
+    let x: i32 = 10;
+    let mut y: i32 = 20;
+    
+    y = y + x;
+    
+    let z: i32 = x + y;
+    
+    return z;
+}
+ 
+Compiling... 
+[SUCCESS] Compiled successfully 
+ 
+ 
+=================================== 
+ 
+ 
+Test completed. 

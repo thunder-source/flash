@@ -42,7 +42,14 @@ if errorlevel 1 (
 )
 
 echo [5/5] Linking...
-link /subsystem:console /entry:main /out:parser_test.exe build\memory.obj build\lexer.obj build\parser.obj build\test_parser.obj kernel32.lib
+set WIN_VER=10.0.19041.0
+set "LIBPATH=C:\Program Files (x86)\Windows Kits\10\Lib\%WIN_VER%\um\x64;C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.29.30133\lib\x64"
+
+link /subsystem:console /entry:main /machine:x64 /out:parser_test.exe ^
+    build\memory.obj build\lexer.obj build\parser.obj build\test_parser.obj ^
+    /LIBPATH:"C:\Program Files (x86)\Windows Kits\10\Lib\%WIN_VER%\um\x64" ^
+    /LIBPATH:"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.29.30133\lib\x64" ^
+    kernel32.lib user32.lib msvcrt.lib
 if errorlevel 1 (
     echo ERROR: Failed to link
     popd
