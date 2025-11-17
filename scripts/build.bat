@@ -1,9 +1,60 @@
 @echo off
+setlocal EnableDelayedExpansion
 echo ========================================
 echo Building Flash Compiler
 echo ========================================
 
 pushd "%~dp0.."
+
+REM Resolve Windows SDK library paths (prefer installed SDK, fallback to default)
+if defined WindowsSdkDir (
+    set "SDK_LIB_ROOT=%WindowsSdkDir%Lib"
+) else (
+    set "SDK_LIB_ROOT=C:\Program Files (x86)\Windows Kits\10\Lib"
+)
+
+if not defined WindowsSDKLibVersion (
+    for /f "delims=" %%v in ('dir /b /ad "!SDK_LIB_ROOT!" ^| sort /r') do (
+        if not defined WindowsSDKLibVersion set "WindowsSDKLibVersion=%%v"
+    )
+)
+
+set "SDK_LIB_UM=%SDK_LIB_ROOT%\%WindowsSDKLibVersion%\um\x64"
+set "SDK_LIB_UCRT=%SDK_LIB_ROOT%\%WindowsSDKLibVersion%\ucrt\x64"
+
+if not exist "!SDK_LIB_UM!" (
+    echo ERROR: Unable to locate Windows SDK UM library folder for x64.
+    echo Checked: "!SDK_LIB_UM!"
+    popd
+    exit /b 1
+)
+
+if not exist "!SDK_LIB_UCRT!" (
+    echo ERROR: Unable to locate Windows SDK UCRT library folder for x64.
+    echo Checked: "!SDK_LIB_UCRT!"
+    popd
+    exit /b 1
+)
+
+REM Prefer the x64 linker from Visual Studio if available
+set "LINK_EXE="
+if defined VCToolsInstallDir (
+    if exist "%VCToolsInstallDir%bin\Hostx64\x64\link.exe" (
+        set "LINK_EXE=%VCToolsInstallDir%bin\Hostx64\x64\link.exe"
+    )
+)
+
+if not defined LINK_EXE (
+    for /f "delims=" %%L in ('where link.exe 2^>nul') do (
+        if not defined LINK_EXE set "LINK_EXE=%%L"
+    )
+)
+
+if not defined LINK_EXE (
+    echo ERROR: link.exe not found. Run from a "x64 Native Tools Command Prompt for VS" or install VS Build Tools.
+    popd
+    exit /b 1
+)
 
 REM Create build directory if it doesn't exist
 if not exist build mkdir build
@@ -50,7 +101,12 @@ if errorlevel 1 (
 )
 
 echo [6/6] Linking...
-link /subsystem:console /entry:main /out:flash_test.exe build\memory.obj build\ast.obj build\lexer.obj build\parser.obj build\test_lexer.obj kernel32.lib
+"%LINK_EXE%" /nologo /subsystem:console /entry:main /machine:x64 ^
+    /LIBPATH:"!SDK_LIB_UM!" ^
+    /LIBPATH:"!SDK_LIB_UCRT!" ^
+    /out:flash_test.exe ^
+    build\memory.obj build\ast.obj build\lexer.obj build\parser.obj build\test_lexer.obj ^
+    kernel32.lib
 if errorlevel 1 (
     echo ERROR: Failed to link
     popd

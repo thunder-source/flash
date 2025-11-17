@@ -1,4 +1,12 @@
 @echo off
+setlocal enableextensions
+
+set "SDK_VERSION=10.0.26100.0"
+set "SDK_LIB_ROOT=%ProgramFiles(x86)%\Windows Kits\10\Lib\%SDK_VERSION%"
+if exist "%SDK_LIB_ROOT%\um\x64\kernel32.lib" (
+    set "LIB=%SDK_LIB_ROOT%\um\x64;%SDK_LIB_ROOT%\ucrt\x64;%LIB%"
+)
+
 echo ========================================
 echo Building Flash Compiler - Comprehensive Test
 echo ========================================
@@ -42,7 +50,7 @@ if errorlevel 1 (
 )
 
 echo [5/5] Linking...
-link /subsystem:console /entry:main /out:flash_test.exe build\memory.obj build\lexer.obj build\parser.obj build\test_comprehensive.obj kernel32.lib
+link /subsystem:console /entry:main /machine:x64 /out:flash_test.exe build\memory.obj build\lexer.obj build\parser.obj build\test_comprehensive.obj kernel32.lib
 if errorlevel 1 (
     echo ERROR: Failed to link
     popd
